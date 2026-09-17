@@ -1,18 +1,21 @@
 import { format } from "date-fns";
 import { sk } from "date-fns/locale";
 import { ChevronRight } from "lucide-react";
-import { getEntries } from "@/entities/entry";
+import { getEntries } from "@/entities/entry/queries";
 
 export async function HistoryList() {
     const entries = await getEntries("1");
 
     // Mock data
-    const monthSummary = {
-        clients: 27,
-        cash: 409,
-        card: 268,
-        total: 677,
-    };
+    const monthSummary = entries.reduce(
+        (acc, entry) => ({
+            clients: acc.clients + entry.clients,
+            cash: acc.cash + entry.cash,
+            card: acc.card + entry.card,
+            total: acc.total + entry.cash + entry.card,
+        }),
+        { clients: 0, cash: 0, card: 0, total: 0 }
+    );
 
     return (
         <div className="flex flex-col gap-4 p-4">
