@@ -14,5 +14,5 @@ type SaveEntryInput = {
 
 export async function saveEntry(data: SaveEntryInput) {
     await db.entry.create({ data });
-    revalidatePath("/historia");
+    revalidatePath("/history");
 }
