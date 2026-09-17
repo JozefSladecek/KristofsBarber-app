@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {toast} from "sonner";
-import { saveEntry } from "@/server/entry/actions";
+import { saveEntry } from "@/entities/entry";
 
 export function EntryForm() {
     const [date, setDate] = useState<Date | undefined>(new Date());

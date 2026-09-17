@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 import { sk } from "date-fns/locale";
 import { ChevronRight } from "lucide-react";
-import { getEntries } from "@/server/entry/queries";
+import { getEntries } from "@/entities/entry";
 
 export async function HistoryList() {
     const entries = await getEntries("1");
