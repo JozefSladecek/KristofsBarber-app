@@ -3,6 +3,8 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 import { authConfig } from "@/lib/auth.config";
+import type { JWT } from "next-auth/jwt";
+import type { Session } from "next-auth";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
     ...authConfig,
@@ -26,4 +28,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             },
         }),
     ],
+    callbacks: {
+        jwt({ token, user }: { token: JWT; user?: { id: string; role: string } }) {
+            if (user) {
+                token.id = user.id;
+                token.role = user.role;
+            }
+            return token;
+        },
+        session({ session, token }: { session: Session; token: JWT }) {
+            session.user.id = token.id as string;
+            session.user.role = token.role as string;
+            return session;
+        },
+    },
 });

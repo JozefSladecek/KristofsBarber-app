@@ -1,15 +1,13 @@
-import type { NextAuthConfig } from "next-auth";
-
-export const authConfig: NextAuthConfig = {
+export const authConfig = {
     pages: {
         signIn: "/login",
     },
     session: {
-        strategy: "jwt",
+        strategy: "jwt" as const,
     },
-    providers: [], // only used for type inference, actual providers are defined in src/lib/auth.ts
+    providers: [],
     callbacks: {
-        authorized({ auth, request: { nextUrl } }) {
+        authorized({ auth, request: { nextUrl } }: any) {
             const isLoggedIn = !!auth?.user;
             const isLoginPage = nextUrl.pathname === "/login";
 

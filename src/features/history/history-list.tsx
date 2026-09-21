@@ -2,9 +2,11 @@ import { format } from "date-fns";
 import { sk } from "date-fns/locale";
 import { ChevronRight } from "lucide-react";
 import { getEntries } from "@/entities/entry/queries";
+import {auth} from "@/lib/auth";
 
 export async function HistoryList() {
-    const entries = await getEntries("1");
+    const session = await auth();
+    const entries = await getEntries(session!.user!.id);
 
     // Mock data
     const monthSummary = entries.reduce(

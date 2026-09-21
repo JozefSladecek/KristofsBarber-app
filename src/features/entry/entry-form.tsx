@@ -14,7 +14,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import {toast} from "sonner";
 import { saveEntry } from "@/entities/entry/actions";
 
-export function EntryForm() {
+export function EntryForm({ userId }: { userId: string }) {
     const [date, setDate] = useState<Date | undefined>(new Date());
     const [clients, setClients] = useState("");
     const [cash, setCash] = useState("");
@@ -36,7 +36,7 @@ export function EntryForm() {
                 cash: Number(cash),
                 card: Number(card),
                 note: note || null,
-                userId: "1", // todo fix this later, get user id from session
+                userId: userId,
             });
 
             toast.success("Deň bol úspešne uložený");
