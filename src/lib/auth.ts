@@ -2,8 +2,10 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
+import { authConfig } from "@/lib/auth.config";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+    ...authConfig,
     providers: [
         Credentials({
             credentials: {
@@ -20,18 +22,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 const isValid = await bcrypt.compare(password, user.password);
                 if (!isValid) return null;
 
-                return {
-                    id: user.id,
-                    name: user.name,
-                    role: user.role,
-                };
+                return { id: user.id, name: user.name, role: user.role };
             },
         }),
     ],
-    pages: {
-        signIn: "/login",
-    },
-    session: {
-        strategy: "jwt",
-    },
 });
