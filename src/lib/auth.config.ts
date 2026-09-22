@@ -15,12 +15,24 @@ export const authConfig = {
 
             if (!isLoggedIn && !isLoginPage) return false;
             if (isLoggedIn && isLoginPage) return Response.redirect(new URL("/", nextUrl));
-
             if (isOverviewPage && !isAdmin) {
                 return new Response("Forbidden", { status: 403 });
             }
-
             return true;
+        },
+        jwt({ token, user }: any) {
+            if (user) {
+                token.id = user.id;
+                token.role = user.role;
+            }
+            return token;
+        },
+        session({ session, token }: any) {
+            if (session.user) {
+                session.user.id = token.id as string;
+                session.user.role = token.role as string;
+            }
+            return session;
         },
     },
 };
