@@ -7,18 +7,18 @@ const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const db = new PrismaClient({ adapter });
 
 async function main() {
-    const hashedPassword = await bcrypt.hash("admin123", 10);
+    const hashedPassword = await bcrypt.hash("heslo123", 10);
 
-    const admin = await db.user.create({
+    const employee = await db.user.create({
         data: {
-            username: "admin",
+            username: "dean",
             password: hashedPassword,
-            name: "Jozef",
-            role: "ADMIN",
+            name: "Dean",
+            role: "EMPLOYEE",
         },
     });
 
-    console.log("Vytvorený admin:", admin);
+    console.log("Vytvorený zamestnanec:", employee);
 }
 
 main()
