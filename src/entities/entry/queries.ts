@@ -16,3 +16,9 @@ export function getEntries(userId: string) {
         orderBy: { date: "desc" },
     });
 }
+
+export function getEntryById(id: string, userId: string) {
+    return db.entry.findFirst({
+        where: { id, userId },
+    });
+}
