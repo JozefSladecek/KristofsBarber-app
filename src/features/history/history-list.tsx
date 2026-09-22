@@ -20,29 +20,25 @@ export async function HistoryList() {
     );
 
     return (
-        <div className="flex flex-col gap-4 p-4">
-            <p className="text-muted-foreground text-center text-xs">
+        <div className="flex h-full flex-col gap-4 p-4">
+            <p className="text-muted-foreground shrink-0 text-center text-xs">
                 Klepni na deň pre úpravu záznamu
             </p>
 
-            <div className="flex flex-col">
+            <div className="flex-1 overflow-y-auto flex flex-col gap-2">
                 {entries.length === 0 && (
                     <p className="text-muted-foreground py-4 text-center">
                         Zatiaľ žiadne záznamy
                     </p>
                 )}
 
-                {entries.map((entry, index) => {
+                {entries.map((entry) => {
                     const total = entry.cash + entry.card;
                     return (
                         <Link
                             key={entry.id}
                             href={`/history/${entry.id}`}
-                            className={
-                                index !== entries.length - 1
-                                    ? "border-border flex items-center justify-between border-b py-3"
-                                    : "flex items-center justify-between py-3"
-                            }
+                            className="bg-card border-border hover:border-primary flex shrink-0 items-center justify-between rounded-lg border px-4 py-3 transition-colors"
                         >
                             <div className="flex items-baseline gap-3">
                 <span className="text-foreground w-12 shrink-0 font-semibold">
@@ -61,7 +57,7 @@ export async function HistoryList() {
                 })}
             </div>
 
-            <div className="border-border bg-card flex flex-col gap-3 rounded-lg border p-4">
+            <div className="border-border bg-card flex shrink-0 flex-col gap-3 rounded-lg border p-4">
         <span className="text-primary text-xs font-semibold uppercase tracking-wide">
           Mesačný súčet
         </span>
