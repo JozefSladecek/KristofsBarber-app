@@ -21,17 +21,19 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
-  return (
-      <html
-          lang="en"
-          className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-      >
-      <body className="min-h-full flex flex-col">
-      <Header />
-      {children}
-      <Toaster />
-      <BottomNav/>
-      </body>
-      </html>
-  );
+    return (
+        <html
+            lang="en"
+            className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+        >
+        <body className="h-full flex flex-col overflow-hidden">
+        <Header />
+        <main className="flex-1 overflow-y-auto min-h-0">
+            {children}
+        </main>
+        <BottomNav/>
+        <Toaster />
+        </body>
+        </html>
+    );
 }

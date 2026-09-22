@@ -15,7 +15,7 @@ export function BottomNav() {
     const pathname = usePathname();
 
     return (
-        <nav className="border-border bg-card fixed bottom-0 left-0 right-0 flex border-t">
+        <nav className="border-border bg-card flex shrink-0 border-t">
             {navItems.map(({ href, label, icon: Icon }) => {
                 const isActive = pathname === href;
                 return (

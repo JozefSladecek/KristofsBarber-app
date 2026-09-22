@@ -6,7 +6,7 @@ export default async function Home() {
     const userId = session!.user!.id;
 
     return (
-        <div className="flex flex-col flex-1 min-h-screen bg-background">
+        <div className="flex flex-col flex-1 bg-background">
             <EntryForm userId={userId} />
         </div>
     );

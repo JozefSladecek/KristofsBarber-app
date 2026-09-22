@@ -6,7 +6,7 @@ export async function Header() {
     const session = await auth();
 
     return (
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+        <div className="flex shrink-0 items-center justify-between border-b border-border px-4 py-3">
             <span className="text-muted-foreground text-xs uppercase tracking-wide">
                 Prihlásený: <span className="text-foreground font-semibold">{session?.user?.name}</span>
             </span>
