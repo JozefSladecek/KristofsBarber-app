@@ -6,17 +6,20 @@ import { PenLine, History, LayoutGrid } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-    { href: "/", label: "Zápis", icon: PenLine },
-    { href: "/history", label: "História", icon: History },
-    { href: "/prehlad", label: "Prehľad", icon: LayoutGrid },
+    { href: "/", label: "Zápis", icon: PenLine, visibleToAll: true },
+    { href: "/history", label: "História", icon: History, visibleToAll: true },
+    { href: "/prehlad", label: "Prehľad", icon: LayoutGrid, visibleToAll: false },
 ];
 
-export function BottomNav() {
+export function BottomNav({ role }: { role: string | undefined }) {
     const pathname = usePathname();
+    const isAdmin = role === "ADMIN" || role === "OWNER";
+
+    const visibleItems = navItems.filter((item) => item.visibleToAll || isAdmin);
 
     return (
         <nav className="border-border bg-card flex shrink-0 border-t">
-            {navItems.map(({ href, label, icon: Icon }) => {
+            {visibleItems.map(({ href, label, icon: Icon }) => {
                 const isActive = pathname === href;
                 return (
                     <Link
