@@ -1,14 +1,14 @@
+import Link from "next/link";
+import { auth } from "@/lib/auth";
 import { format } from "date-fns";
 import { sk } from "date-fns/locale";
 import { ChevronRight } from "lucide-react";
 import { getEntries } from "@/entities/entry/queries";
-import {auth} from "@/lib/auth";
 
 export async function HistoryList() {
     const session = await auth();
     const entries = await getEntries(session!.user!.id);
 
-    // Mock data
     const monthSummary = entries.reduce(
         (acc, entry) => ({
             clients: acc.clients + entry.clients,
@@ -35,8 +35,9 @@ export async function HistoryList() {
                 {entries.map((entry, index) => {
                     const total = entry.cash + entry.card;
                     return (
-                        <div
+                        <Link
                             key={entry.id}
+                            href={`/history/${entry.id}`}
                             className={
                                 index !== entries.length - 1
                                     ? "border-border flex items-center justify-between border-b py-3"
@@ -55,7 +56,7 @@ export async function HistoryList() {
                                 <span className="text-primary font-bold">{total}€</span>
                                 <ChevronRight className="text-muted-foreground h-4 w-4" />
                             </div>
-                        </div>
+                        </Link>
                     );
                 })}
             </div>
@@ -83,10 +84,6 @@ export async function HistoryList() {
                     <span className="text-primary text-xl font-bold">{monthSummary.total} €</span>
                 </div>
             </div>
-
-            <p className="text-muted-foreground text-center text-xs">
-                Klik na deň = úprava záznamu (nie prioritné teraz)
-            </p>
         </div>
     );
 }

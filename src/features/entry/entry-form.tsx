@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { sk } from "date-fns/locale";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Pencil } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -11,15 +12,30 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import {toast} from "sonner";
-import { saveEntry } from "@/entities/entry/actions";
+import { toast } from "sonner";
+import { saveEntry, updateEntry } from "@/entities/entry/actions";
 
-export function EntryForm({ userId }: { userId: string }) {
-    const [date, setDate] = useState<Date | undefined>(new Date());
-    const [clients, setClients] = useState("");
-    const [cash, setCash] = useState("");
-    const [card, setCard] = useState("");
-    const [note, setNote] = useState("");
+type EntryFormProps = {
+    userId: string;
+    entryId?: string;
+    initialData?: {
+        date: Date;
+        clients: number;
+        cash: number;
+        card: number;
+        note: string | null;
+    };
+};
+
+export function EntryForm({ userId, entryId, initialData }: EntryFormProps) {
+    const router = useRouter();
+    const isEditMode = !!entryId;
+
+    const [date, setDate] = useState<Date | undefined>(initialData?.date ?? new Date());
+    const [clients, setClients] = useState(initialData?.clients?.toString() ?? "");
+    const [cash, setCash] = useState(initialData?.cash?.toString() ?? "");
+    const [card, setCard] = useState(initialData?.card?.toString() ?? "");
+    const [note, setNote] = useState(initialData?.note ?? "");
 
     const [isSaving, setIsSaving] = useState(false);
 
@@ -30,26 +46,53 @@ export function EntryForm({ userId }: { userId: string }) {
 
         setIsSaving(true);
         try {
-            await saveEntry({
+            const data = {
                 date,
                 clients: Number(clients),
                 cash: Number(cash),
                 card: Number(card),
                 note: note || null,
-                userId: userId,
-            });
+            };
 
-            toast.success("Deň bol úspešne uložený");
+            if (isEditMode) {
+                await updateEntry(entryId, userId, data);
+                toast.success("Záznam bol upravený");
+                router.push("/history");
+            } else {
+                await saveEntry({ ...data, userId });
+                toast.success("Deň bol úspešne uložený");
+            }
         } catch (error) {
-            toast.error("Nepodarilo sa uložiť deň, skús to znova");
+            toast.error("Nepodarilo sa uložiť, skús to znova");
         } finally {
             setIsSaving(false);
         }
     }
 
+    function handleCancel() {
+        router.push("/history");
+    }
+
     return (
         <Card className="border-border bg-transparent shadow-none">
             <CardContent className="flex flex-col gap-6 px-4">
+                {isEditMode && (
+                    <div className="border-primary bg-secondary flex items-center justify-between rounded-lg border px-4 py-3">
+                        <span className="text-primary flex items-center gap-2 text-sm font-semibold">
+                            <Pencil className="h-4 w-4" />
+                            Upravuješ existujúci záznam
+                        </span>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleCancel}
+                            className="border-primary text-primary"
+                        >
+                            Zrušiť
+                        </Button>
+                    </div>
+                )}
+
                 <div className="flex flex-col gap-2">
                     <Label className="text-muted-foreground text-xs uppercase tracking-wide">
                         Dátum
@@ -141,7 +184,7 @@ export function EntryForm({ userId }: { userId: string }) {
                     disabled={isSaving}
                     className="w-full text-base font-bold tracking-wide uppercase"
                 >
-                    {isSaving ? "Ukladám..." : "Uložiť deň"}
+                    {isSaving ? "Ukladám..." : isEditMode ? "Uložiť zmeny" : "Uložiť deň"}
                 </Button>
 
             </CardContent>

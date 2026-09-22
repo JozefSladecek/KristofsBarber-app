@@ -16,3 +16,19 @@ export async function saveEntry(data: SaveEntryInput) {
     await db.entry.create({ data });
     revalidatePath("/history");
 }
+
+type UpdateEntryInput = {
+    date: Date;
+    clients: number;
+    cash: number;
+    card: number;
+    note: string | null;
+};
+
+export async function updateEntry(id: string, userId: string, data: UpdateEntryInput) {
+    await db.entry.updateMany({
+        where: { id, userId },
+        data,
+    });
+    revalidatePath("/history");
+}
