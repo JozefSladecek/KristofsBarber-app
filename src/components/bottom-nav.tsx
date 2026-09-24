@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 const navItems = [
     { href: "/", label: "Zápis", icon: PenLine, visibleToAll: true },
     { href: "/history", label: "História", icon: History, visibleToAll: true },
-    { href: "/prehlad", label: "Prehľad", icon: LayoutGrid, visibleToAll: false },
+    { href: "/overview", label: "Prehľad", icon: LayoutGrid, visibleToAll: false },
 ];
 
 export function BottomNav({ role }: { role: string | undefined }) {

@@ -10,7 +10,7 @@ export const authConfig = {
         authorized({ auth, request: { nextUrl } }: any) {
             const isLoggedIn = !!auth?.user;
             const isLoginPage = nextUrl.pathname === "/login";
-            const isOverviewPage = nextUrl.pathname.startsWith("/prehlad");
+            const isOverviewPage = nextUrl.pathname.startsWith("/overview");
             const isAdmin = auth?.user?.role === "ADMIN" || auth?.user?.role === "OWNER";
 
             if (!isLoggedIn && !isLoginPage) return false;
