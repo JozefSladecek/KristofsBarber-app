@@ -1,9 +1,5 @@
-import { HistoryList } from "@/features/history/history-list";
+import { HistoryPage } from "@/features/history/history-page";
 
-export default function HistoryPage() {
-  return (
-      <div className="flex h-full min-h-0 flex-col gap-4">
-          <HistoryList />
-    </div>
-  );
+export default function Page() {
+    return <HistoryPage />;
 }

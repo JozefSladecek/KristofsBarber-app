@@ -10,10 +10,29 @@ export const authConfig = {
         authorized({ auth, request: { nextUrl } }: any) {
             const isLoggedIn = !!auth?.user;
             const isLoginPage = nextUrl.pathname === "/login";
+            const isOverviewPage = nextUrl.pathname.startsWith("/overview");
+            const isAdmin = auth?.user?.role === "ADMIN" || auth?.user?.role === "OWNER";
 
             if (!isLoggedIn && !isLoginPage) return false;
             if (isLoggedIn && isLoginPage) return Response.redirect(new URL("/", nextUrl));
+            if (isOverviewPage && !isAdmin) {
+                return new Response("Forbidden", { status: 403 });
+            }
             return true;
+        },
+        jwt({ token, user }: any) {
+            if (user) {
+                token.id = user.id;
+                token.role = user.role;
+            }
+            return token;
+        },
+        session({ session, token }: any) {
+            if (session.user) {
+                session.user.id = token.id as string;
+                session.user.role = token.role as string;
+            }
+            return session;
         },
     },
 };
