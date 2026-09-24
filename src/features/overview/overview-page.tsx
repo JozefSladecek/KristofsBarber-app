@@ -1,10 +1,27 @@
-import { getOverviewData } from "@/entities/entry/overview-queries";
+import { getOverviewData, getAllEmployees } from "@/entities/overview/queries";
+import { HistoryList } from "@/features/history/history-list";
+import { EmployeeSelect } from "./employee-select";
 
-export async function OverviewPage() {
+export async function OverviewPage({ selectedUserId }: { selectedUserId?: string }) {
+    const employees = await getAllEmployees();
+
+    if (selectedUserId) {
+        return (
+            <div className="flex flex-col gap-0">
+                <div className="p-4">
+                    <EmployeeSelect employees={employees} selectedUserId={selectedUserId} />
+                </div>
+                <HistoryList userId={selectedUserId} />
+            </div>
+        );
+    }
+
     const { totalSummary, byEmployee } = await getOverviewData();
 
     return (
         <div className="flex flex-col gap-4 p-4">
+            <EmployeeSelect employees={employees} selectedUserId={selectedUserId} />
+
             <div className="border-border bg-card flex flex-col gap-3 rounded-lg border p-4">
                 <span className="text-primary text-xs font-semibold uppercase tracking-wide">
                     Súčet za všetkých
@@ -38,8 +55,15 @@ export async function OverviewPage() {
                     <p className="text-muted-foreground text-center text-sm">Zatiaľ žiadne dáta</p>
                 )}
 
-                {byEmployee.map((employee) => (
-                    <div key={employee.userId} className="flex items-center justify-between">
+                {byEmployee.map((employee, index) => (
+                    <div
+                        key={employee.userId}
+                        className={
+                            index !== byEmployee.length - 1
+                                ? "border-border flex items-center justify-between border-b pb-3"
+                                : "flex items-center justify-between"
+                        }
+                    >
                         <span className="text-foreground">{employee.name}</span>
                         <span className="text-primary font-semibold">{employee.total} €</span>
                     </div>

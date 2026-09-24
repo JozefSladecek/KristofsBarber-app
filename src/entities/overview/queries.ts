@@ -1,9 +1,8 @@
 import { db } from "@/lib/db";
+import { getMonthRange } from "@/lib/date-utils";
 
 export async function getOverviewData(month?: Date) {
-    const now = month ?? new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const startOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    const { startOfMonth, startOfNextMonth } = getMonthRange(month);
 
     const entries = await db.entry.findMany({
         where: {
@@ -37,4 +36,24 @@ export async function getOverviewData(month?: Date) {
     }));
 
     return { totalSummary, byEmployee };
+}
+
+export function getEmployeeEntries(userId: string) {
+    const { startOfMonth, startOfNextMonth } = getMonthRange();
+
+    return db.entry.findMany({
+        where: {
+            userId,
+            date: { gte: startOfMonth, lt: startOfNextMonth },
+        },
+        orderBy: { date: "desc" },
+    });
+}
+
+export function getAllEmployees() {
+    return db.user.findMany({
+        where: { role: "EMPLOYEE" },
+        select: { id: true, name: true },
+        orderBy: { name: "asc" },
+    });
 }
