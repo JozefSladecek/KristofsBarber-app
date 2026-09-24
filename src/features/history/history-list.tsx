@@ -1,13 +1,11 @@
 import Link from "next/link";
-import { auth } from "@/lib/auth";
 import { format } from "date-fns";
 import { sk } from "date-fns/locale";
 import { ChevronRight } from "lucide-react";
 import { getEntries } from "@/entities/entry/queries";
 
-export async function HistoryList() {
-    const session = await auth();
-    const entries = await getEntries(session!.user!.id);
+export async function HistoryList({ userId }: { userId: string }) {
+    const entries = await getEntries(userId);
 
     const monthSummary = entries.reduce(
         (acc, entry) => ({
