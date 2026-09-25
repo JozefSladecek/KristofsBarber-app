@@ -12,6 +12,14 @@ type SaveEntryInput = {
     userId: string;
 };
 
+type UpdateEntryInput = {
+    date: Date;
+    clients: number;
+    cash: number;
+    card: number;
+    note: string | null;
+};
+
 export async function saveEntry(data: SaveEntryInput) {
     try {
         await db.entry.create({ data });
@@ -25,14 +33,6 @@ export async function saveEntry(data: SaveEntryInput) {
     }
 }
 
-type UpdateEntryInput = {
-    date: Date;
-    clients: number;
-    cash: number;
-    card: number;
-    note: string | null;
-};
-
 export async function updateEntry(
     id: string,
     userId: string,
@@ -42,6 +42,14 @@ export async function updateEntry(
     await db.entry.updateMany({
         where: isAdmin ? { id } : { id, userId },
         data,
+    });
+    revalidatePath("/history");
+    revalidatePath("/overview");
+}
+
+export async function deleteEntry(id: string, userId: string, isAdmin: boolean) {
+    await db.entry.deleteMany({
+        where: isAdmin ? { id } : { id, userId },
     });
     revalidatePath("/history");
     revalidatePath("/overview");

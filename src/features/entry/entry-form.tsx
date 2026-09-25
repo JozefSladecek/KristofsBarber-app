@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { sk } from "date-fns/locale";
-import { CalendarIcon, Pencil } from "lucide-react";
+import {CalendarIcon, Pencil, Trash2} from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
-import { saveEntry, updateEntry } from "@/entities/entry/actions";
+import {deleteEntry, saveEntry, updateEntry} from "@/entities/entry/actions";
 
 type EntryFormProps = {
     userId: string;
@@ -70,6 +70,22 @@ export function EntryForm({ userId, entryId, isAdmin, initialData }: EntryFormPr
             }
         } catch (error) {
             toast.error(error instanceof Error ? error.message : "Nepodarilo sa uložiť, skús to znova");
+        } finally {
+            setIsSaving(false);
+        }
+    }
+
+    async function handleDelete() {
+        if (!entryId) return;
+        if (!confirm("Naozaj chceš zmazať tento záznam?")) return;
+
+        setIsSaving(true);
+        try {
+            await deleteEntry(entryId, userId, isAdmin);
+            toast.success("Záznam bol zmazaný");
+            router.push("/history");
+        } catch (error) {
+            toast.error("Nepodarilo sa zmazať záznam");
         } finally {
             setIsSaving(false);
         }
@@ -185,13 +201,23 @@ export function EntryForm({ userId, entryId, isAdmin, initialData }: EntryFormPr
                     <span className="text-primary text-2xl font-bold">{total} €</span>
                 </div>
 
-                <Button
-                    onClick={handleSave}
-                    disabled={isSaving}
-                    className="w-full text-base font-bold tracking-wide uppercase"
-                >
-                    {isSaving ? "Ukladám..." : isEditMode ? "Uložiť zmeny" : "Uložiť deň"}
-                </Button>
+                <div className="flex flex-col gap-4">
+                    <Button
+                        onClick={handleSave}
+                        disabled={isSaving}
+                        className="w-full text-base font-bold tracking-wide uppercase"
+                    >
+                        {isSaving ? "Ukladám..." : isEditMode ? "Uložiť zmeny" : "Uložiť deň"}
+                    </Button>
+
+                    {isEditMode && (
+                        <Button variant="destructive" onClick={handleDelete} disabled={isSaving} className="w-full text-base font-bold tracking-wide uppercase"
+                        >
+                            <Trash2 className="h-4 w-4" />
+                            Zmazať záznam
+                        </Button>
+                    )}
+                </div>
 
             </CardContent>
         </Card>
