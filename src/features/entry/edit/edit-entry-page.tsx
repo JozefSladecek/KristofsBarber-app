@@ -6,8 +6,9 @@ import { notFound } from "next/navigation";
 export async function EditEntryPage({ id }: { id: string }) {
     const session = await auth();
     const userId = session!.user!.id;
+    const isAdmin = session!.user!.role === "ADMIN";
 
-    const entry = await getEntryById(id, userId);
+    const entry = await getEntryById(id, userId, isAdmin);
 
     if (!entry) {
         notFound();
@@ -18,6 +19,7 @@ export async function EditEntryPage({ id }: { id: string }) {
             <EntryForm
                 userId={userId}
                 entryId={entry.id}
+                isAdmin={isAdmin}
                 initialData={{
                     date: entry.date,
                     clients: entry.clients,

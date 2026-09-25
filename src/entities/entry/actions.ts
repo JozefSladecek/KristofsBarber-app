@@ -25,10 +25,16 @@ type UpdateEntryInput = {
     note: string | null;
 };
 
-export async function updateEntry(id: string, userId: string, data: UpdateEntryInput) {
+export async function updateEntry(
+    id: string,
+    userId: string,
+    isAdmin: boolean,
+    data: UpdateEntryInput
+) {
     await db.entry.updateMany({
-        where: { id, userId },
+        where: isAdmin ? { id } : { id, userId },
         data,
     });
     revalidatePath("/history");
+    revalidatePath("/overview");
 }

@@ -17,8 +17,8 @@ export function getEntries(userId: string) {
     });
 }
 
-export function getEntryById(id: string, userId: string) {
+export function getEntryById(id: string, userId: string, isAdmin: boolean) {
     return db.entry.findFirst({
-        where: { id, userId },
+        where: isAdmin ? { id } : { id, userId },
     });
 }

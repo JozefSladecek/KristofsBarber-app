@@ -25,9 +25,10 @@ type EntryFormProps = {
         card: number;
         note: string | null;
     };
+    isAdmin: boolean;
 };
 
-export function EntryForm({ userId, entryId, initialData }: EntryFormProps) {
+export function EntryForm({ userId, entryId, isAdmin, initialData }: EntryFormProps) {
     const router = useRouter();
     const isEditMode = !!entryId;
 
@@ -55,7 +56,7 @@ export function EntryForm({ userId, entryId, initialData }: EntryFormProps) {
             };
 
             if (isEditMode) {
-                await updateEntry(entryId, userId, data);
+                await updateEntry(entryId, userId, isAdmin, data);
                 toast.success("Záznam bol upravený");
                 router.push("/history");
             } else {
