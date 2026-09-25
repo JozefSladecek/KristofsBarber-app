@@ -2,7 +2,8 @@ import { getOverviewData, getAllEmployees } from "@/entities/overview/queries";
 import { HistoryList } from "@/features/history/history-list";
 import { EmployeeSelect } from "./employee-select";
 
-export async function OverviewPage({ selectedUserId }: { selectedUserId?: string }) {
+export async function OverviewPage({ selectedUserId, month }: { selectedUserId?: string; month?: string }) {
+    const currentMonth = month ? new Date(`${month}-01`) : new Date();
     const employees = await getAllEmployees();
 
     if (selectedUserId) {
@@ -11,7 +12,7 @@ export async function OverviewPage({ selectedUserId }: { selectedUserId?: string
                 <div className="p-4">
                     <EmployeeSelect employees={employees} selectedUserId={selectedUserId} />
                 </div>
-                <HistoryList userId={selectedUserId} />
+                <HistoryList userId={selectedUserId} month={currentMonth} />
             </div>
         );
     }
