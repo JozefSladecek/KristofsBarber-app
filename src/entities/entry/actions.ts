@@ -13,8 +13,16 @@ type SaveEntryInput = {
 };
 
 export async function saveEntry(data: SaveEntryInput) {
-    await db.entry.create({ data });
-    revalidatePath("/history");
+    try {
+        await db.entry.create({ data });
+        revalidatePath("/history");
+        revalidatePath("/overview");
+    } catch (error: any) {
+        if (error.code === "P2002") {
+            throw new Error("Pre tento deň už existuje záznam");
+        }
+        throw error;
+    }
 }
 
 type UpdateEntryInput = {
