@@ -1,9 +1,8 @@
 import { db } from "@/lib/db";
+import {getMonthRange} from "@/lib/date-utils";
 
-export function getEntries(userId: string) {
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const startOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+export function getEntries(userId: string, month?: Date) {
+    const { startOfMonth, startOfNextMonth } = getMonthRange(month);
 
     return db.entry.findMany({
         where: {

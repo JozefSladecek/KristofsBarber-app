@@ -3,9 +3,11 @@ import { format } from "date-fns";
 import { sk } from "date-fns/locale";
 import { ChevronRight } from "lucide-react";
 import { getEntries } from "@/entities/entry/queries";
+import {MonthSelector} from "@/features/history/month-selector";
 
-export async function HistoryList({ userId }: { userId: string }) {
-    const entries = await getEntries(userId);
+export async function HistoryList({ userId, month }: { userId: string; month?: Date }) {
+    const entries = await getEntries(userId, month);
+    const currentMonth = month ?? new Date();
 
     const monthSummary = entries.reduce(
         (acc, entry) => ({
@@ -19,6 +21,7 @@ export async function HistoryList({ userId }: { userId: string }) {
 
     return (
         <div className="flex h-full flex-col gap-4 p-4">
+            <MonthSelector currentMonth={currentMonth} />
             <p className="text-muted-foreground shrink-0 text-center text-xs">
                 Klepni na deň pre úpravu záznamu
             </p>
