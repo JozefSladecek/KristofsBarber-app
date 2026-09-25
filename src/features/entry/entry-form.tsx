@@ -69,7 +69,7 @@ export function EntryForm({ userId, entryId, isAdmin, initialData }: EntryFormPr
                 setNote("");
             }
         } catch (error) {
-            toast.error("Nepodarilo sa uložiť, skús to znova");
+            toast.error(error instanceof Error ? error.message : "Nepodarilo sa uložiť, skús to znova");
         } finally {
             setIsSaving(false);
         }
