@@ -20,7 +20,7 @@ export async function HistoryList({ userId, month }: { userId: string; month?: D
     );
 
     return (
-        <div className="flex h-full flex-col gap-4 p-4">
+        <div className="flex h-full min-h-0 flex-col gap-4 p-4">
             <MonthSelector currentMonth={currentMonth} />
             <p className="text-muted-foreground shrink-0 text-center text-xs">
                 Klepni na deň pre úpravu záznamu

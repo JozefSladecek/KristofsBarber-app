@@ -6,5 +6,9 @@ export default async function Page({
     searchParams: Promise<{ employee?: string; month?: string }>;
 }) {
     const { employee, month } = await searchParams;
-    return <OverviewPage selectedUserId={employee} month={month} />;
+    return (
+        <div className="h-full min-h-0">
+            <OverviewPage selectedUserId={employee} month={month} />
+        </div>
+    );
 }
