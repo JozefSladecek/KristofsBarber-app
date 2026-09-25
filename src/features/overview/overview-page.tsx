@@ -8,7 +8,7 @@ export async function OverviewPage({ selectedUserId, month }: { selectedUserId?:
 
     if (selectedUserId) {
         return (
-            <div className="flex flex-col gap-0">
+            <div className="flex h-full min-h-0 flex-col">
                 <div className="p-4">
                     <EmployeeSelect employees={employees} selectedUserId={selectedUserId} />
                 </div>
