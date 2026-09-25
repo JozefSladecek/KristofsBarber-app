@@ -7,6 +7,7 @@ export async function getOverviewData(month?: Date) {
     const entries = await db.entry.findMany({
         where: {
             date: { gte: startOfMonth, lt: startOfNextMonth },
+            user: { role: { in: ["EMPLOYEE", "OWNER"] } },
         },
         include: {
             user: { select: { id: true, name: true } },
@@ -52,7 +53,7 @@ export function getEmployeeEntries(userId: string) {
 
 export function getAllEmployees() {
     return db.user.findMany({
-        where: { role: "EMPLOYEE" },
+        where: { role: { in: ["EMPLOYEE", "OWNER"] } },
         select: { id: true, name: true },
         orderBy: { name: "asc" },
     });
