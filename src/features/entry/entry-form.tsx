@@ -139,14 +139,17 @@ export function EntryForm({ userId, entryId, isAdmin, initialData }: EntryFormPr
                     <Label htmlFor="clients" className="text-muted-foreground text-xs uppercase tracking-wide">
                         Počet klientov
                     </Label>
-                    <Input
-                        id="clients"
-                        type="number"
-                        placeholder="0"
-                        value={clients}
-                        onChange={(e) => setClients(e.target.value)}
-                        className="bg-card border-border text-lg"
-                    />
+                    <div className="bg-card border-border flex items-center rounded-lg border px-3">
+                        <Input
+                            id="clients"
+                            type="number"
+                            inputMode="numeric"
+                            placeholder="0"
+                            value={clients}
+                            onChange={(e) => setClients(e.target.value)}
+                            className="border-0 bg-transparent px-0 text-lg shadow-none focus-visible:ring-0"
+                        />
+                    </div>
                 </div>
 
                 <div className="flex flex-col gap-2">
@@ -157,10 +160,11 @@ export function EntryForm({ userId, entryId, isAdmin, initialData }: EntryFormPr
                         <Input
                             id="cash"
                             type="number"
+                            inputMode="numeric"
                             placeholder="0"
                             value={cash}
                             onChange={(e) => setCash(e.target.value)}
-                            className="border-0 bg-transparent text-lg shadow-none focus-visible:ring-0"
+                            className="border-0 bg-transparent px-0 text-lg shadow-none focus-visible:ring-0 "
                         />
                         <span className="text-primary font-semibold">€</span>
                     </div>
@@ -174,10 +178,11 @@ export function EntryForm({ userId, entryId, isAdmin, initialData }: EntryFormPr
                         <Input
                             id="card"
                             type="number"
+                            inputMode="numeric"
                             placeholder="0"
                             value={card}
                             onChange={(e) => setCard(e.target.value)}
-                            className="border-0 bg-transparent text-lg shadow-none focus-visible:ring-0"
+                            className="border-0 bg-transparent px-0 text-lg shadow-none focus-visible:ring-0"
                         />
                         <span className="text-primary font-semibold">€</span>
                     </div>
