@@ -26,6 +26,7 @@ export function LoginForm() {
         if (result?.error) {
             setError("Nesprávne meno alebo heslo");
         } else {
+            router.refresh();
             router.push(callbackUrl);
         }
     }
