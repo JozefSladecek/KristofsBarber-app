@@ -62,6 +62,11 @@ export function EntryForm({ userId, entryId, isAdmin, initialData }: EntryFormPr
             } else {
                 await saveEntry({ ...data, userId });
                 toast.success("Deň bol úspešne uložený");
+                setDate(new Date());
+                setClients("");
+                setCash("");
+                setCard("");
+                setNote("");
             }
         } catch (error) {
             toast.error("Nepodarilo sa uložiť, skús to znova");
