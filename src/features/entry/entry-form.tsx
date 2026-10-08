@@ -24,7 +24,6 @@ type EntryFormProps = {
         card: number;
         note: string | null;
     };
-    isAdmin: boolean;
 };
 
 export function EntryForm({ entryId, initialData }: EntryFormProps) {
