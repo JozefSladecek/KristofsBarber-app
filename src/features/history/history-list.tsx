@@ -1,14 +1,13 @@
-import Link from "next/link";
-import { format } from "date-fns";
-import { sk } from "date-fns/locale";
-import { ChevronRight } from "lucide-react";
 import { getEntries } from "@/entities/entry/server";
 import {MonthSelector} from "@/features/history/month-selector";
+import { HistoryViewSwitcher } from "@/features/history/history-view-switcher";
+import { MonthSummary } from "@/features/history/month-summary";
 
 export async function HistoryList({ userId, month }: { userId: string; month?: Date }) {
     const entries = await getEntries(userId, month);
     const currentMonth = month ?? new Date();
 
+    // todo make utility for this
     const monthSummary = entries.reduce(
         (acc, entry) => ({
             clients: acc.clients + entry.clients,
@@ -26,61 +25,9 @@ export async function HistoryList({ userId, month }: { userId: string; month?: D
                 Klepni na deň pre úpravu záznamu
             </p>
 
-            <div className="flex-1 overflow-y-auto flex flex-col gap-2">
-                {entries.length === 0 && (
-                    <p className="text-muted-foreground py-4 text-center">
-                        Zatiaľ žiadne záznamy
-                    </p>
-                )}
+            <HistoryViewSwitcher entries={entries} month={currentMonth} />
 
-                {entries.map((entry) => {
-                    const total = entry.cash + entry.card;
-                    return (
-                        <Link
-                            key={entry.id}
-                            href={`/history/${entry.id}`}
-                            className="bg-card border-border hover:border-primary flex shrink-0 items-center justify-between rounded-lg border px-4 py-3 transition-colors"
-                        >
-                            <div className="flex items-baseline gap-3">
-                <span className="text-foreground w-12 shrink-0 font-semibold">
-                  {format(entry.date, "dd.MM.", { locale: sk })}
-                </span>
-                                <span className="text-muted-foreground text-sm">
-                  {entry.clients} klientov · hot {entry.cash}€ · karta {entry.card}€
-                </span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                                <span className="text-primary font-bold">{total}€</span>
-                                <ChevronRight className="text-muted-foreground h-4 w-4" />
-                            </div>
-                        </Link>
-                    );
-                })}
-            </div>
-
-            <div className="border-border bg-card flex shrink-0 flex-col gap-3 rounded-lg border p-4">
-        <span className="text-primary text-xs font-semibold uppercase tracking-wide">
-          Mesačný súčet
-        </span>
-
-                <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Klienti spolu</span>
-                    <span className="text-foreground">{monthSummary.clients}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Hotovosť spolu</span>
-                    <span className="text-foreground">{monthSummary.cash} €</span>
-                </div>
-                <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Kartou spolu</span>
-                    <span className="text-foreground">{monthSummary.card} €</span>
-                </div>
-
-                <div className="border-border flex items-center justify-between border-t pt-3">
-                    <span className="text-primary text-lg font-bold">Spolu</span>
-                    <span className="text-primary text-xl font-bold">{monthSummary.total} €</span>
-                </div>
-            </div>
+            <MonthSummary summary={monthSummary} />
         </div>
     );
 }

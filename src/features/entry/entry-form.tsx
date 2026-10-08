@@ -46,7 +46,7 @@ export function EntryForm({ entryId, initialData }: EntryFormProps) {
         setIsSaving(true);
         try {
             const data = {
-                date,
+                date: new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())),
                 clients: Number(clients),
                 cash: Number(cash),
                 card: Number(card),
