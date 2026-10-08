@@ -2,7 +2,7 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { sk } from "date-fns/locale";
 import { ChevronRight } from "lucide-react";
-import { getEntries } from "@/entities/entry/queries";
+import { getEntries } from "@/entities/entry";
 import {MonthSelector} from "@/features/history/month-selector";
 
 export async function HistoryList({ userId, month }: { userId: string; month?: Date }) {

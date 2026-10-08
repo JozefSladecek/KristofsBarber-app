@@ -1,2 +1,2 @@
-export { saveEntry } from "./actions";
-export { getEntries } from "./queries";
+export { saveEntry, updateEntry, deleteEntry } from "./actions";
+export { getEntries, getEntryById } from "./queries";

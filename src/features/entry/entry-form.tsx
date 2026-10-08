@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
-import {deleteEntry, saveEntry, updateEntry} from "@/entities/entry/actions";
+import {deleteEntry, saveEntry, updateEntry} from "@/entities/entry";
 
 type EntryFormProps = {
     entryId?: string;
