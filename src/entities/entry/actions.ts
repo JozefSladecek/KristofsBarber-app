@@ -39,7 +39,7 @@ export async function saveEntry(data: SaveEntryInput) {
 export async function updateEntry(id: string, data: UpdateEntryInput) {
     const session = await auth();
     const userId = session!.user!.id;
-    const isAdmin = session!.user!.role === "ADMIN";
+    const isAdmin = session!.user!.role === "ADMIN" || session!.user!.role === "OWNER";
 
     await db.entry.updateMany({
         where: isAdmin ? { id } : { id, userId },
@@ -52,7 +52,7 @@ export async function updateEntry(id: string, data: UpdateEntryInput) {
 export async function deleteEntry(id: string) {
     const session = await auth();
     const userId = session!.user!.id;
-    const isAdmin = session!.user!.role === "ADMIN";
+    const isAdmin = session!.user!.role === "ADMIN" || session!.user!.role === "OWNER";
 
     await db.entry.deleteMany({
         where: isAdmin ? { id } : { id, userId },

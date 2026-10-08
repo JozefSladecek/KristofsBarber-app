@@ -6,7 +6,7 @@ import { notFound } from "next/navigation";
 export async function EditEntryPage({ id }: { id: string }) {
     const session = await auth();
     const userId = session!.user!.id;
-    const isAdmin = session!.user!.role === "ADMIN";
+    const isAdmin = session!.user!.role === "ADMIN" || session!.user!.role === "OWNER";
 
     const entry = await getEntryById(id, userId, isAdmin);
 
@@ -18,7 +18,6 @@ export async function EditEntryPage({ id }: { id: string }) {
         <div className="flex flex-col flex-1 min-h-screen bg-background">
             <EntryForm
                 entryId={entry.id}
-                isAdmin={isAdmin}
                 initialData={{
                     date: entry.date,
                     clients: entry.clients,
