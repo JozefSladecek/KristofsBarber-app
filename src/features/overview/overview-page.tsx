@@ -1,4 +1,4 @@
-import { getOverviewData, getAllEmployees } from "@/entities/overview/queries";
+import { getOverviewData, getAllEmployees } from "@/entities/overview/server";
 import { HistoryList } from "@/features/history/history-list";
 import { EmployeeSelect } from "./employee-select";
 

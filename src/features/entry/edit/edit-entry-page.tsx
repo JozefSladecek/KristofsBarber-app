@@ -1,5 +1,5 @@
 import { auth } from "@/lib/auth";
-import { getEntryById } from "@/entities/entry";
+import { getEntryById } from "@/entities/entry/server";
 import { EntryForm } from "@/features/entry/entry-form";
 import { notFound } from "next/navigation";
 
