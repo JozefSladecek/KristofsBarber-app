@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
 type SaveEntryInput = {
@@ -9,7 +10,6 @@ type SaveEntryInput = {
     cash: number;
     card: number;
     note: string | null;
-    userId: string;
 };
 
 type UpdateEntryInput = {
@@ -21,8 +21,11 @@ type UpdateEntryInput = {
 };
 
 export async function saveEntry(data: SaveEntryInput) {
+    const session = await auth();
+    const userId = session!.user!.id;
+
     try {
-        await db.entry.create({ data });
+        await db.entry.create({ data: { ...data, userId } });
         revalidatePath("/history");
         revalidatePath("/overview");
     } catch (error: any) {
@@ -33,12 +36,11 @@ export async function saveEntry(data: SaveEntryInput) {
     }
 }
 
-export async function updateEntry(
-    id: string,
-    userId: string,
-    isAdmin: boolean,
-    data: UpdateEntryInput
-) {
+export async function updateEntry(id: string, data: UpdateEntryInput) {
+    const session = await auth();
+    const userId = session!.user!.id;
+    const isAdmin = session!.user!.role === "ADMIN";
+
     await db.entry.updateMany({
         where: isAdmin ? { id } : { id, userId },
         data,
@@ -47,7 +49,11 @@ export async function updateEntry(
     revalidatePath("/overview");
 }
 
-export async function deleteEntry(id: string, userId: string, isAdmin: boolean) {
+export async function deleteEntry(id: string) {
+    const session = await auth();
+    const userId = session!.user!.id;
+    const isAdmin = session!.user!.role === "ADMIN";
+
     await db.entry.deleteMany({
         where: isAdmin ? { id } : { id, userId },
     });

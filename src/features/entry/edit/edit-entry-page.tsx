@@ -17,7 +17,6 @@ export async function EditEntryPage({ id }: { id: string }) {
     return (
         <div className="flex flex-col flex-1 min-h-screen bg-background">
             <EntryForm
-                userId={userId}
                 entryId={entry.id}
                 isAdmin={isAdmin}
                 initialData={{

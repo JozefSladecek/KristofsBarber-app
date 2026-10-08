@@ -16,7 +16,6 @@ import { toast } from "sonner";
 import {deleteEntry, saveEntry, updateEntry} from "@/entities/entry/actions";
 
 type EntryFormProps = {
-    userId: string;
     entryId?: string;
     initialData?: {
         date: Date;
@@ -28,7 +27,7 @@ type EntryFormProps = {
     isAdmin: boolean;
 };
 
-export function EntryForm({ userId, entryId, isAdmin, initialData }: EntryFormProps) {
+export function EntryForm({ entryId, initialData }: EntryFormProps) {
     const router = useRouter();
     const isEditMode = !!entryId;
 
@@ -56,11 +55,11 @@ export function EntryForm({ userId, entryId, isAdmin, initialData }: EntryFormPr
             };
 
             if (isEditMode) {
-                await updateEntry(entryId, userId, isAdmin, data);
+                await updateEntry(entryId, data);
                 toast.success("Záznam bol upravený");
                 router.push("/history");
             } else {
-                await saveEntry({ ...data, userId });
+                await saveEntry(data);
                 toast.success("Deň bol úspešne uložený");
                 setDate(new Date());
                 setClients("");
@@ -81,7 +80,7 @@ export function EntryForm({ userId, entryId, isAdmin, initialData }: EntryFormPr
 
         setIsSaving(true);
         try {
-            await deleteEntry(entryId, userId, isAdmin);
+            await deleteEntry(entryId);
             toast.success("Záznam bol zmazaný");
             router.push("/history");
         } catch (error) {
