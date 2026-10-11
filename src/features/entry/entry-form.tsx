@@ -44,9 +44,11 @@ export function EntryForm({ entryId, initialData }: EntryFormProps) {
     const cashValue = parseFloat(cash) || 0;
     const envelopeCashValue = envelopeCash === "" ? cashValue : parseFloat(envelopeCash) || 0;
     const toReturn = envelopeCashValue - cashValue;
+    const envelopeCashError = toReturn < 0 ? "Do obálky nemôže byť menej ako hotovosť" : null;
 
     async function handleSave() {
         if (!date) return;
+        if (envelopeCashError) return;
 
         setIsSaving(true);
         try {
@@ -191,7 +193,11 @@ export function EntryForm({ entryId, initialData }: EntryFormProps) {
                         />
                         <span className="text-primary font-semibold">€</span>
                     </div>
-                    <span className="text-muted-foreground text-xs">Na vrátenie: {toReturn} €</span>
+                    {envelopeCashError ? (
+                        <span className="text-destructive text-xs">{envelopeCashError}</span>
+                    ) : (
+                        <span className="text-muted-foreground text-xs">Na vrátenie: {toReturn} €</span>
+                    )}
                 </div>
 
                 <div className="flex flex-col gap-2">
@@ -233,7 +239,7 @@ export function EntryForm({ entryId, initialData }: EntryFormProps) {
                 <div className="flex flex-col gap-4">
                     <Button
                         onClick={handleSave}
-                        disabled={isSaving}
+                        disabled={isSaving || !!envelopeCashError}
                         className="w-full text-base font-bold tracking-wide uppercase"
                     >
                         {isSaving ? "Ukladám..." : isEditMode ? "Uložiť zmeny" : "Uložiť deň"}
