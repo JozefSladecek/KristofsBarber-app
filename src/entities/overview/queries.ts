@@ -21,20 +21,23 @@ export async function getOverviewData(month?: Date) {
             cash: acc.cash + entry.cash,
             card: acc.card + entry.card,
             total: acc.total + entry.cash + entry.card,
+            toReturn: acc.toReturn + (entry.envelopeCash ?? entry.cash) - entry.cash,
         }),
-        { clients: 0, cash: 0, card: 0, total: 0 }
+        { clients: 0, cash: 0, card: 0, total: 0, toReturn: 0 }
     );
 
-    const byEmployeeMap = new Map<string, { name: string; total: number }>();
+    const byEmployeeMap = new Map<string, { name: string; total: number; toReturn: number }>();
     for (const entry of entries) {
-        const current = byEmployeeMap.get(entry.user.id) ?? { name: entry.user.name, total: 0 };
+        const current = byEmployeeMap.get(entry.user.id) ?? { name: entry.user.name, total: 0, toReturn: 0 };
         current.total += entry.cash + entry.card;
+        current.toReturn += (entry.envelopeCash ?? entry.cash) - entry.cash;
         byEmployeeMap.set(entry.user.id, current);
     }
     const byEmployee = Array.from(byEmployeeMap.entries()).map(([userId, data]) => ({
         userId,
         name: data.name,
         total: data.total,
+        toReturn: data.toReturn,
     }));
 
     return { totalSummary, byEmployee };

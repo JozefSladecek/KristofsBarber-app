@@ -23,6 +23,7 @@ export async function EditEntryPage({ id }: { id: string }) {
                     clients: entry.clients,
                     cash: entry.cash,
                     card: entry.card,
+                    envelopeCash: entry.envelopeCash,
                     note: entry.note,
                 }}
             />

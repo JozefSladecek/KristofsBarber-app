@@ -40,6 +40,10 @@ export async function OverviewPage({ selectedUserId, month }: { selectedUserId?:
                     <span className="text-muted-foreground">Kartou spolu</span>
                     <span className="text-foreground">{totalSummary.card} €</span>
                 </div>
+                <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Na vrátenie</span>
+                    <span className="text-foreground">{totalSummary.toReturn} €</span>
+                </div>
 
                 <div className="border-border flex items-center justify-between border-t pt-3">
                     <span className="text-primary text-lg font-bold">Spolu (prevádzka)</span>
@@ -66,7 +70,10 @@ export async function OverviewPage({ selectedUserId, month }: { selectedUserId?:
                         }
                     >
                         <span className="text-foreground">{employee.name}</span>
-                        <span className="text-primary font-semibold">{employee.total} €</span>
+                        <div className="flex flex-col items-end">
+                            <span className="text-primary font-semibold">{employee.total} €</span>
+                            <span className="text-muted-foreground text-xs">Na vrátenie: {employee.toReturn} €</span>
+                        </div>
                     </div>
                 ))}
             </div>

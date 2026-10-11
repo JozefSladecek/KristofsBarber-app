@@ -33,6 +33,7 @@ model Entry {
   clients Int
   cash    Float
   card    Float
+  envelopeCash Float?
   note    String?
 
   user   User   @relation(fields: [userId], references: [id])

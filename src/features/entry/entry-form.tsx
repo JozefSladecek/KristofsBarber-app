@@ -22,6 +22,7 @@ type EntryFormProps = {
         clients: number;
         cash: number;
         card: number;
+        envelopeCash: number | null;
         note: string | null;
     };
 };
@@ -34,11 +35,15 @@ export function EntryForm({ entryId, initialData }: EntryFormProps) {
     const [clients, setClients] = useState(initialData?.clients?.toString() ?? "");
     const [cash, setCash] = useState(initialData?.cash?.toString() ?? "");
     const [card, setCard] = useState(initialData?.card?.toString() ?? "");
+    const [envelopeCash, setEnvelopeCash] = useState(initialData?.envelopeCash?.toString() ?? "");
     const [note, setNote] = useState(initialData?.note ?? "");
 
     const [isSaving, setIsSaving] = useState(false);
 
     const total = (parseFloat(cash) || 0) + (parseFloat(card) || 0);
+    const cashValue = parseFloat(cash) || 0;
+    const envelopeCashValue = envelopeCash === "" ? cashValue : parseFloat(envelopeCash) || 0;
+    const toReturn = envelopeCashValue - cashValue;
 
     async function handleSave() {
         if (!date) return;
@@ -50,6 +55,7 @@ export function EntryForm({ entryId, initialData }: EntryFormProps) {
                 clients: Number(clients),
                 cash: Number(cash),
                 card: Number(card),
+                envelopeCash: envelopeCash === "" ? null : Number(envelopeCash),
                 note: note || null,
             };
 
@@ -64,6 +70,7 @@ export function EntryForm({ entryId, initialData }: EntryFormProps) {
                 setClients("");
                 setCash("");
                 setCard("");
+                setEnvelopeCash("");
                 setNote("");
             }
         } catch (error) {
@@ -166,6 +173,25 @@ export function EntryForm({ entryId, initialData }: EntryFormProps) {
                         />
                         <span className="text-primary font-semibold">€</span>
                     </div>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                    <Label htmlFor="envelopeCash" className="text-muted-foreground text-xs uppercase tracking-wide">
+                        Do obálky (€)
+                    </Label>
+                    <div className="bg-card border-border flex items-center rounded-lg border px-3">
+                        <Input
+                            id="envelopeCash"
+                            type="number"
+                            inputMode="numeric"
+                            placeholder="0"
+                            value={envelopeCash}
+                            onChange={(e) => setEnvelopeCash(e.target.value)}
+                            className="border-0 bg-transparent px-0 text-lg shadow-none focus-visible:ring-0"
+                        />
+                        <span className="text-primary font-semibold">€</span>
+                    </div>
+                    <span className="text-muted-foreground text-xs">Na vrátenie: {toReturn} €</span>
                 </div>
 
                 <div className="flex flex-col gap-2">

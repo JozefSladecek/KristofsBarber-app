@@ -9,6 +9,7 @@ type SaveEntryInput = {
     clients: number;
     cash: number;
     card: number;
+    envelopeCash: number | null;
     note: string | null;
 };
 
@@ -17,6 +18,7 @@ type UpdateEntryInput = {
     clients: number;
     cash: number;
     card: number;
+    envelopeCash: number | null;
     note: string | null;
 };
 
