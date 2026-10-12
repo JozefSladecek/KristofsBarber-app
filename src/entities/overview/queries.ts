@@ -1,6 +1,7 @@
 import "server-only";
 import { db } from "@/lib/db";
 import { getMonthRange } from "@/lib/date-utils";
+import { summarizeEntries, applyPaidOut } from "@/entities/entry";
 
 export async function getOverviewData(month?: Date) {
     const { startOfMonth, startOfNextMonth } = getMonthRange(month);
@@ -15,16 +16,7 @@ export async function getOverviewData(month?: Date) {
         },
     });
 
-    const totalSummary = entries.reduce(
-        (acc, entry) => ({
-            clients: acc.clients + entry.clients,
-            cash: acc.cash + entry.cash,
-            card: acc.card + entry.card,
-            total: acc.total + entry.cash + entry.card,
-            toReturn: acc.toReturn + (entry.envelopeCash ?? entry.cash) - entry.cash,
-        }),
-        { clients: 0, cash: 0, card: 0, total: 0, toReturn: 0 }
-    );
+    const totalSummary = summarizeEntries(entries); // for all employees combined for the month
 
     const byEmployeeMap = new Map<string, { name: string; total: number; toReturn: number }>();
     for (const entry of entries) {
@@ -42,15 +34,13 @@ export async function getOverviewData(month?: Date) {
         const payout = payoutByUserId.get(userId) ?? null;
         return {
             userId,
-            name: data.name,
-            total: data.total,
-            toReturn: data.toReturn - (payout?.amount ?? 0), // payout?.amount are the amounts already paid out - only 1 number which is increased if the owner clicks the "Vyplatiť" button multiple times, so we need to subtract it from the toReturn value
+            ...applyPaidOut(data, payout?.amount ?? 0),
             payout,
         };
     });
 
     return {
-        totalSummary: { ...totalSummary, toReturn: totalSummary.toReturn - totalPaidOut },
+        totalSummary: applyPaidOut(totalSummary, totalPaidOut),
         byEmployee,
         month: startOfMonth,
     };

@@ -1,4 +1,5 @@
 import { getEntries } from "@/entities/entry/server";
+import { summarizeEntries, applyPaidOut } from "@/entities/entry";
 import { getPayoutAmount } from "@/entities/overview/server";
 import {MonthSelector} from "@/features/history/month-selector";
 import { HistoryViewSwitcher } from "@/features/history/history-view-switcher";
@@ -8,20 +9,9 @@ export async function HistoryList({ userId, month }: { userId: string; month?: D
     const entries = await getEntries(userId, month);
     const currentMonth = month ?? new Date();
 
-    // todo make utility for this
-    const rawSummary = entries.reduce(
-        (acc, entry) => ({
-            clients: acc.clients + entry.clients,
-            cash: acc.cash + entry.cash,
-            card: acc.card + entry.card,
-            total: acc.total + entry.cash + entry.card,
-            toReturn: acc.toReturn + (entry.envelopeCash ?? entry.cash) - entry.cash,
-        }),
-        { clients: 0, cash: 0, card: 0, total: 0, toReturn: 0 }
-    );
-
+    const rawSummary = summarizeEntries(entries); // for 1 employee, for the month
     const paidOut = await getPayoutAmount(userId, month);
-    const monthSummary = { ...rawSummary, toReturn: rawSummary.toReturn - paidOut };
+    const monthSummary = applyPaidOut(rawSummary, paidOut);
 
     return (
         <div className="flex h-full min-h-0 flex-col gap-4 p-4">
