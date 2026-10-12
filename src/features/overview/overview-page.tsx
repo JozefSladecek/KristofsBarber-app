@@ -1,6 +1,7 @@
 import { getOverviewData, getAllEmployees } from "@/entities/overview/server";
 import { HistoryList } from "@/features/history/history-list";
 import { EmployeeSelect } from "./employee-select";
+import { PayoutButton } from "./payout-button";
 
 export async function OverviewPage({ selectedUserId, month }: { selectedUserId?: string; month?: string }) {
     const currentMonth = month ? new Date(`${month}-01`) : new Date();
@@ -17,7 +18,7 @@ export async function OverviewPage({ selectedUserId, month }: { selectedUserId?:
         );
     }
 
-    const { totalSummary, byEmployee } = await getOverviewData();
+    const { totalSummary, byEmployee, month: resolvedMonth } = await getOverviewData(currentMonth);
 
     return (
         <div className="flex flex-col gap-4 p-4">
@@ -70,9 +71,17 @@ export async function OverviewPage({ selectedUserId, month }: { selectedUserId?:
                         }
                     >
                         <span className="text-foreground">{employee.name}</span>
-                        <div className="flex flex-col items-end">
-                            <span className="text-primary font-semibold">{employee.total} €</span>
-                            <span className="text-muted-foreground text-xs">Na vrátenie: {employee.toReturn} €</span>
+                        <div className="flex items-center gap-3">
+                            <div className="flex flex-col items-end">
+                                <span className="text-primary font-semibold">{employee.total} €</span>
+                                <span className="text-muted-foreground text-xs">Na vrátenie: {employee.toReturn} €</span>
+                            </div>
+                            <PayoutButton
+                                userId={employee.userId}
+                                month={resolvedMonth}
+                                toReturn={employee.toReturn}
+                                payout={employee.payout}
+                            />
                         </div>
                     </div>
                 ))}

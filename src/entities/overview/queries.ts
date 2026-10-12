@@ -33,14 +33,35 @@ export async function getOverviewData(month?: Date) {
         current.toReturn += (entry.envelopeCash ?? entry.cash) - entry.cash;
         byEmployeeMap.set(entry.user.id, current);
     }
-    const byEmployee = Array.from(byEmployeeMap.entries()).map(([userId, data]) => ({
-        userId,
-        name: data.name,
-        total: data.total,
-        toReturn: data.toReturn,
-    }));
 
-    return { totalSummary, byEmployee };
+    const payouts = await db.envelopePayout.findMany({ where: { month: startOfMonth } });
+    const payoutByUserId = new Map(payouts.map((payout) => [payout.userId, payout]));
+    const totalPaidOut = payouts.reduce((sum, payout) => sum + payout.amount, 0); // all employees payouts for the month
+
+    const byEmployee = Array.from(byEmployeeMap.entries()).map(([userId, data]) => {
+        const payout = payoutByUserId.get(userId) ?? null;
+        return {
+            userId,
+            name: data.name,
+            total: data.total,
+            toReturn: data.toReturn - (payout?.amount ?? 0), // payout?.amount are the amounts already paid out - only 1 number which is increased if the owner clicks the "Vyplatiť" button multiple times, so we need to subtract it from the toReturn value
+            payout,
+        };
+    });
+
+    return {
+        totalSummary: { ...totalSummary, toReturn: totalSummary.toReturn - totalPaidOut },
+        byEmployee,
+        month: startOfMonth,
+    };
+}
+
+export async function getPayoutAmount(userId: string, month?: Date) {
+    const { startOfMonth } = getMonthRange(month);
+    const payout = await db.envelopePayout.findUnique({
+        where: { userId_month: { userId, month: startOfMonth } },
+    });
+    return payout?.amount ?? 0;
 }
 
 export function getEmployeeEntries(userId: string) {
