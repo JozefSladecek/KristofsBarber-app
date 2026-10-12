@@ -9,6 +9,7 @@ type SaveEntryInput = {
     clients: number;
     cash: number;
     card: number;
+    envelopeCash: number | null;
     note: string | null;
 };
 
@@ -17,10 +18,19 @@ type UpdateEntryInput = {
     clients: number;
     cash: number;
     card: number;
+    envelopeCash: number | null;
     note: string | null;
 };
 
+function assertValidEnvelopeCash(data: { cash: number; envelopeCash: number | null }) {
+    if (data.envelopeCash !== null && data.envelopeCash < data.cash) {
+        throw new Error("Do obálky nemôže byť menej ako hotovosť");
+    }
+}
+
 export async function saveEntry(data: SaveEntryInput) {
+    assertValidEnvelopeCash(data);
+
     const session = await auth();
     const userId = session!.user!.id;
 
@@ -37,6 +47,8 @@ export async function saveEntry(data: SaveEntryInput) {
 }
 
 export async function updateEntry(id: string, data: UpdateEntryInput) {
+    assertValidEnvelopeCash(data);
+
     const session = await auth();
     const userId = session!.user!.id;
     const isAdmin = session!.user!.role === "ADMIN" || session!.user!.role === "OWNER";

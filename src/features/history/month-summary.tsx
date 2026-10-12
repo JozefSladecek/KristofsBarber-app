@@ -3,6 +3,7 @@ type Summary = {
     cash: number;
     card: number;
     total: number;
+    toReturn: number;
 };
 
 export function MonthSummary({ summary }: { summary: Summary }) {
@@ -23,6 +24,10 @@ export function MonthSummary({ summary }: { summary: Summary }) {
             <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Kartou spolu</span>
                 <span className="text-foreground">{summary.card} €</span>
+            </div>
+            <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Na vrátenie</span>
+                <span className="text-foreground">{summary.toReturn} €</span>
             </div>
 
             <div className="border-border flex items-center justify-between border-t pt-3">

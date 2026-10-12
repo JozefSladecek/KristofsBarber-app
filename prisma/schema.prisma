@@ -13,12 +13,13 @@ datasource db {
 }
 
 model User {
-  id       String  @id @default(cuid())
-  name     String
-  username String  @unique
-  password String
-  role     Role    @default(EMPLOYEE)
-  entries  Entry[]
+  id             String          @id @default(cuid())
+  name           String
+  username       String          @unique
+  password       String
+  role           Role            @default(EMPLOYEE)
+  entries        Entry[]
+  envelopePayouts EnvelopePayout[]
 }
 
 enum Role {
@@ -33,10 +34,23 @@ model Entry {
   clients Int
   cash    Float
   card    Float
+  envelopeCash Float?
   note    String?
 
   user   User   @relation(fields: [userId], references: [id])
   userId String
 
   @@unique([userId, date])
+}
+
+model EnvelopePayout {
+  id      String   @id @default(cuid())
+  month   DateTime @db.Date
+  amount  Float
+  paidAt  DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  @@unique([userId, month])
 }
