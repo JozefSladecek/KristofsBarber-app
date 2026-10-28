@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { eachDayOfInterval, endOfMonth, format, isSameDay, startOfMonth } from "date-fns";
 import { sk } from "date-fns/locale";
+import { StickyNote } from "lucide-react";
 import type { getEntries } from "@/entities/entry/server";
 
 type Entry = Awaited<ReturnType<typeof getEntries>>[number];
 
 const WEEKDAY_LABELS = ["Po", "Ut", "St", "Št", "Pi", "So", "Ne"];
-const CELL_CLASS = "flex h-full items-center justify-center rounded-md text-sm";
+const CELL_CLASS = "relative flex h-full items-center justify-center rounded-md text-sm";
 
 export function EntryCalendarView({ entries, month }: { entries: Entry[]; month: Date }) {
     const start = startOfMonth(month);
@@ -15,6 +16,7 @@ export function EntryCalendarView({ entries, month }: { entries: Entry[]; month:
 
     // Calculate the number of empty cells before the first day of the month
     const leadingBlanks = (start.getDay() + 6) % 7;
+    const hasNotes = entries.some((entry) => entry.note);
 
     return (
         <div className="flex h-full min-h-0 flex-col gap-2">
@@ -39,6 +41,9 @@ export function EntryCalendarView({ entries, month }: { entries: Entry[]; month:
                                 href={`/history/${entry.id}`}
                                 className={`${CELL_CLASS} bg-primary/40 text-foreground hover:bg-primary/30 font-semibold transition-colors`}
                             >
+                                {entry.note && (
+                                    <StickyNote className="text-foreground absolute top-0.5 right-0.5 h-3 w-3 md:h-4 md:w-4" />
+                                )}
                                 {format(day, "d", { locale: sk })}
                             </Link>
                         );
@@ -52,9 +57,17 @@ export function EntryCalendarView({ entries, month }: { entries: Entry[]; month:
                 })}
             </div>
 
-            <div className="border-border text-muted-foreground flex shrink-0 items-center justify-center gap-2 border-t pt-2 text-xs">
-                <span className="bg-primary/40 h-3 w-3 rounded-sm" />
-                <span>Deň so záznamom</span>
+            <div className="border-border text-muted-foreground flex shrink-0 items-center justify-center gap-4 border-t pt-2 text-xs">
+                <div className="flex items-center gap-2">
+                    <span className="bg-primary/40 h-3 w-3 rounded-sm" />
+                    <span>Deň so záznamom</span>
+                </div>
+                {hasNotes && (
+                    <div className="flex items-center gap-2">
+                        <StickyNote className="h-3 w-3" />
+                        <span>Deň s poznámkou</span>
+                    </div>
+                )}
             </div>
         </div>
     );
