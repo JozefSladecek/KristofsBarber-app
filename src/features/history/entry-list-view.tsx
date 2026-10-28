@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { format } from "date-fns";
 import { sk } from "date-fns/locale";
-import { ChevronRight } from "lucide-react";
+import { StickyNote } from "lucide-react";
 import type { getEntries } from "@/entities/entry/server";
 
 type Entry = Awaited<ReturnType<typeof getEntries>>[number];
@@ -16,30 +16,39 @@ export function EntryListView({ entries }: { entries: Entry[] }) {
     }
 
     return (
-        <div className="flex-1 overflow-y-auto flex flex-col gap-2">
-            {entries.map((entry) => {
-                const total = entry.cash + entry.card;
-                return (
-                    <Link
-                        key={entry.id}
-                        href={`/history/${entry.id}`}
-                        className="bg-card border-border hover:border-primary flex shrink-0 items-center justify-between rounded-lg border px-4 py-3 transition-colors"
-                    >
-                        <div className="flex items-baseline gap-3">
-                            <span className="text-foreground w-12 shrink-0 font-semibold">
-                                {format(entry.date, "dd.MM.", { locale: sk })}
+        <div className="flex-1 overflow-y-auto">
+            <div className="bg-card border-border rounded-lg border">
+                {entries.map((entry, index) => {
+                    const total = entry.cash + entry.card;
+                    const weekday = format(entry.date, "EEEEEE", { locale: sk });
+                    const weekdayLabel = weekday.charAt(0).toUpperCase() + weekday.slice(1);
+
+                    return (
+                        <Link
+                            key={entry.id}
+                            href={`/history/${entry.id}`}
+                            className={`hover:bg-secondary flex shrink-0 items-center justify-between px-4 py-3 transition-colors ${
+                                index !== entries.length - 1 ? "border-border border-b" : ""
+                            }`}
+                        >
+                            <div className="flex items-baseline gap-3">
+                                <span className="text-foreground shrink-0 font-semibold">
+                                    {weekdayLabel} {format(entry.date, "dd.MM.", { locale: sk })}
+                                </span>
+                                <span className="text-muted-foreground text-sm">
+                                    {entry.clients} klientov · hot {entry.cash}€ · karta {entry.card}€
+                                </span>
+                                {entry.note && (
+                                    <StickyNote className="text-primary -ml-1 h-4 w-4 shrink-0 self-center" />
+                                )}
+                            </div>
+                            <span className="text-primary text-lg font-bold">
+                                {total.toLocaleString("sk-SK", { maximumFractionDigits: 2 })} €
                             </span>
-                            <span className="text-muted-foreground text-sm">
-                                {entry.clients} klientov · hot {entry.cash}€ · karta {entry.card}€
-                            </span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                            <span className="text-primary font-bold">{total}€</span>
-                            <ChevronRight className="text-muted-foreground h-4 w-4" />
-                        </div>
-                    </Link>
-                );
-            })}
+                        </Link>
+                    );
+                })}
+            </div>
         </div>
     );
 }
