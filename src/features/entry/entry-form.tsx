@@ -14,6 +14,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
 import {deleteEntry, saveEntry, updateEntry} from "@/entities/entry";
+import { entrySchema } from "@/entities/entry/schema";
 
 type EntryFormProps = {
     entryId?: string;
@@ -39,6 +40,7 @@ export function EntryForm({ entryId, initialData }: EntryFormProps) {
     const [note, setNote] = useState(initialData?.note ?? "");
 
     const [isSaving, setIsSaving] = useState(false);
+    const [errors, setErrors] = useState<Record<string, string>>({});
 
     const total = (parseFloat(cash) || 0) + (parseFloat(card) || 0);
     const cashValue = parseFloat(cash) || 0;
@@ -61,12 +63,36 @@ export function EntryForm({ entryId, initialData }: EntryFormProps) {
                 note: note || null,
             };
 
+            const validation = entrySchema.safeParse(data);
+            if (!validation.success) {
+                const fieldErrors: Record<string, string> = {};
+                validation.error.issues.forEach((issue) => {
+                    const field = issue.path[0];
+                    fieldErrors[String(field)] = issue.message;
+                });
+                setErrors(fieldErrors);
+                setIsSaving(false);
+                return;
+            }
+
+            setErrors({});
+
             if (isEditMode) {
-                await updateEntry(entryId, data);
+                const result = await updateEntry(entryId, validation.data);
+                if (!result.success) {
+                    toast.error(result.error);
+                    setIsSaving(false);
+                    return;
+                }
                 toast.success("Záznam bol upravený");
                 router.push("/history");
             } else {
-                await saveEntry(data);
+                const result = await saveEntry(validation.data);
+                if (!result.success) {
+                    toast.error(result.error);
+                    setIsSaving(false);
+                    return;
+                }
                 toast.success("Deň bol úspešne uložený");
                 setDate(new Date());
                 setClients("");
@@ -146,7 +172,7 @@ export function EntryForm({ entryId, initialData }: EntryFormProps) {
                     <Label htmlFor="clients" className="text-muted-foreground text-xs uppercase tracking-wide">
                         Počet klientov
                     </Label>
-                    <div className="bg-card border-border flex items-center rounded-lg border px-3">
+                    <div className={`bg-card flex items-center rounded-lg border px-3 ${errors.clients ? "border-destructive" : "border-border"}`}>
                         <Input
                             id="clients"
                             type="number"
@@ -157,13 +183,14 @@ export function EntryForm({ entryId, initialData }: EntryFormProps) {
                             className="border-0 bg-transparent px-0 text-lg shadow-none focus-visible:ring-0"
                         />
                     </div>
+                    {errors.clients && <span className="text-destructive text-xs">{errors.clients}</span>}
                 </div>
 
                 <div className="flex flex-col gap-2">
                     <Label htmlFor="cash" className="text-muted-foreground text-xs uppercase tracking-wide">
                         Hotovosť
                     </Label>
-                    <div className="bg-card border-border flex items-center rounded-lg border px-3">
+                    <div className={`bg-card flex items-center rounded-lg border px-3 ${errors.cash ? "border-destructive" : "border-border"}`}>
                         <Input
                             id="cash"
                             type="number"
@@ -175,13 +202,14 @@ export function EntryForm({ entryId, initialData }: EntryFormProps) {
                         />
                         <span className="text-primary font-semibold">€</span>
                     </div>
+                    {errors.cash && <span className="text-destructive text-xs">{errors.cash}</span>}
                 </div>
 
                 <div className="flex flex-col gap-2">
                     <Label htmlFor="envelopeCash" className="text-muted-foreground text-xs uppercase tracking-wide">
                         Do obálky (€)
                     </Label>
-                    <div className="bg-card border-border flex items-center rounded-lg border px-3">
+                    <div className={`bg-card flex items-center rounded-lg border px-3 ${errors.envelopeCash ? "border-destructive" : "border-border"}`}>
                         <Input
                             id="envelopeCash"
                             type="number"
@@ -193,7 +221,9 @@ export function EntryForm({ entryId, initialData }: EntryFormProps) {
                         />
                         <span className="text-primary font-semibold">€</span>
                     </div>
-                    {envelopeCashError ? (
+                    {errors.envelopeCash ? (
+                        <span className="text-destructive text-xs">{errors.envelopeCash}</span>
+                    ) : envelopeCashError ? (
                         <span className="text-destructive text-xs">{envelopeCashError}</span>
                     ) : (
                         <span className="text-muted-foreground text-xs">Na vrátenie: {toReturn} €</span>
@@ -204,7 +234,7 @@ export function EntryForm({ entryId, initialData }: EntryFormProps) {
                     <Label htmlFor="card" className="text-muted-foreground text-xs uppercase tracking-wide">
                         Karta
                     </Label>
-                    <div className="bg-card border-border flex items-center rounded-lg border px-3">
+                    <div className={`bg-card flex items-center rounded-lg border px-3 ${errors.card ? "border-destructive" : "border-border"}`}>
                         <Input
                             id="card"
                             type="number"
@@ -216,6 +246,7 @@ export function EntryForm({ entryId, initialData }: EntryFormProps) {
                         />
                         <span className="text-primary font-semibold">€</span>
                     </div>
+                    {errors.card && <span className="text-destructive text-xs">{errors.card}</span>}
                 </div>
 
                 <div className="flex flex-col gap-2">
