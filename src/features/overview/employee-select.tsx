@@ -1,19 +1,23 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type Employee = { id: string; name: string };
 
 export function EmployeeSelect({ employees, selectedUserId }: { employees: Employee[]; selectedUserId?: string }) {
     const router = useRouter();
+    const searchParams = useSearchParams();
 
     function handleChange(value: string | null) {
+        const params = new URLSearchParams(searchParams);
         if (!value || value === "all") {
-            router.push("/overview");
+            params.delete("employee");
         } else {
-            router.push(`/overview?employee=${value}`);
+            params.set("employee", value);
         }
+        const query = params.toString();
+        router.push(query ? `/overview?${query}` : "/overview");
     }
 
     const labels: Record<string, string> = {

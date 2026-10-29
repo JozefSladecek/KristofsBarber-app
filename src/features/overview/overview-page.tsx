@@ -1,5 +1,6 @@
 import { getOverviewData, getAllEmployees } from "@/entities/overview/server";
 import { HistoryList } from "@/features/history/history-list";
+import { MonthSelector } from "@/features/history/month-selector";
 import { EmployeeSelect } from "./employee-select";
 import { PayoutButton } from "./payout-button";
 
@@ -23,6 +24,7 @@ export async function OverviewPage({ selectedUserId, month }: { selectedUserId?:
     return (
         <div className="flex flex-col gap-4 p-4">
             <EmployeeSelect employees={employees} selectedUserId={selectedUserId} />
+            <MonthSelector currentMonth={currentMonth} />
 
             <div className="border-border bg-card flex flex-col gap-3 rounded-lg border p-4">
                 <span className="text-primary text-xs font-semibold uppercase tracking-wide">
