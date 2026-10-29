@@ -3,6 +3,7 @@
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { entrySchema } from "./schema";
 
 type SaveEntryInput = {
     date: Date;
@@ -22,14 +23,13 @@ type UpdateEntryInput = {
     note: string | null;
 };
 
-function assertValidEnvelopeCash(data: { cash: number; envelopeCash: number | null }) {
-    if (data.envelopeCash !== null && data.envelopeCash < data.cash) {
-        throw new Error("Do obálky nemôže byť menej ako hotovosť");
-    }
-}
+type ActionResult = { success: true } | { success: false; error: string };
 
-export async function saveEntry(data: SaveEntryInput) {
-    assertValidEnvelopeCash(data);
+export async function saveEntry(data: SaveEntryInput): Promise<ActionResult> {
+    const validation = entrySchema.safeParse(data);
+    if (!validation.success) {
+        return { success: false, error: validation.error.issues[0].message };
+    }
 
     const session = await auth();
     const userId = session!.user!.id;
@@ -38,27 +38,39 @@ export async function saveEntry(data: SaveEntryInput) {
         await db.entry.create({ data: { ...data, userId } });
         revalidatePath("/history");
         revalidatePath("/overview");
+        return { success: true };
     } catch (error: any) {
         if (error.code === "P2002") {
-            throw new Error("Pre tento deň už existuje záznam");
+            return { success: false, error: "Pre tento deň už existuje záznam" };
         }
         throw error;
     }
 }
 
-export async function updateEntry(id: string, data: UpdateEntryInput) {
-    assertValidEnvelopeCash(data);
+export async function updateEntry(id: string, data: UpdateEntryInput): Promise<ActionResult> {
+    const validation = entrySchema.safeParse(data);
+    if (!validation.success) {
+        return { success: false, error: validation.error.issues[0].message };
+    }
 
     const session = await auth();
     const userId = session!.user!.id;
     const isAdmin = session!.user!.role === "ADMIN" || session!.user!.role === "OWNER";
 
-    await db.entry.updateMany({
-        where: isAdmin ? { id } : { id, userId },
-        data,
-    });
-    revalidatePath("/history");
-    revalidatePath("/overview");
+    try {
+        await db.entry.updateMany({
+            where: isAdmin ? { id } : { id, userId },
+            data,
+        });
+        revalidatePath("/history");
+        revalidatePath("/overview");
+        return { success: true };
+    } catch (error: any) {
+        if (error.code === "P2002") {
+            return { success: false, error: "Pre tento deň už existuje záznam" };
+        }
+        throw error;
+    }
 }
 
 export async function deleteEntry(id: string) {
