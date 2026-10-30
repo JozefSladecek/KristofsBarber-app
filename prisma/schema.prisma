@@ -13,13 +13,14 @@ datasource db {
 }
 
 model User {
-  id             String          @id @default(cuid())
-  name           String
-  username       String          @unique
-  password       String
-  role           Role            @default(EMPLOYEE)
-  entries        Entry[]
+  id              String           @id @default(cuid())
+  name            String
+  username        String           @unique
+  password        String
+  role            Role             @default(EMPLOYEE)
+  entries         Entry[]
   envelopePayouts EnvelopePayout[]
+  sales           Sale[]           @relation("UserSales")
 }
 
 enum Role {
@@ -29,13 +30,13 @@ enum Role {
 }
 
 model Entry {
-  id      String   @id @default(cuid())
-  date    DateTime @db.Date
-  clients Int
-  cash    Float
-  card    Float
+  id           String   @id @default(cuid())
+  date         DateTime @db.Date
+  clients      Int
+  cash         Float
+  card         Float
   envelopeCash Float?
-  note    String?
+  note         String?
 
   user   User   @relation(fields: [userId], references: [id])
   userId String
@@ -44,13 +45,70 @@ model Entry {
 }
 
 model EnvelopePayout {
-  id      String   @id @default(cuid())
-  month   DateTime @db.Date
-  amount  Float
-  paidAt  DateTime @default(now())
+  id     String   @id @default(cuid())
+  month  DateTime @db.Date
+  amount Float
+  paidAt DateTime @default(now())
 
   user   User   @relation(fields: [userId], references: [id])
   userId String
 
   @@unique([userId, month])
+}
+
+model Product {
+  id                String          @id @default(cuid())
+  name              String
+  category          ProductCategory
+  price             Float
+  stock             Int
+  lowStockThreshold Int             @default(3)
+  active            Boolean         @default(true)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  saleItems         SaleItem[]
+
+  @@unique([name])
+}
+
+enum ProductCategory {
+  PRODUCT
+  DRINK
+}
+
+model Sale {
+  id            String        @id @default(cuid())
+  date          DateTime      @db.Date
+  paymentMethod PaymentMethod
+  note          String?
+  createdAt     DateTime      @default(now())
+
+  user   User   @relation("UserSales", fields: [userId], references: [id])
+  userId String
+
+  items SaleItem[]
+}
+
+model SaleItem {
+  id String @id @default(cuid())
+
+  sale   Sale   @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  saleId String
+
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+
+  // Snapshot of the product's name and price at the time of the sale.
+  // Kept here so later changes in the catalog don't rewrite past sales.
+  productName  String
+  pricePerUnit Float
+
+  quantity Int
+
+  @@unique([saleId, productId])
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
 }
