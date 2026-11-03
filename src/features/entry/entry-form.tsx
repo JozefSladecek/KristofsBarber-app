@@ -2,16 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { format } from "date-fns";
-import { sk } from "date-fns/locale";
-import {CalendarIcon, Pencil, Trash2} from "lucide-react";
+import {Pencil, Trash2} from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { DatePickerField } from "@/components/date-picker-field";
 import { toast } from "sonner";
 import {deleteEntry, saveEntry, updateEntry} from "@/entities/entry";
 import { entrySchema } from "@/entities/entry/schema";
@@ -148,25 +145,7 @@ export function EntryForm({ entryId, initialData }: EntryFormProps) {
                     </div>
                 )}
 
-                <div className="flex flex-col gap-2">
-                    <Label className="text-muted-foreground text-xs uppercase tracking-wide">
-                        Dátum
-                    </Label>
-                    <Popover>
-                        <PopoverTrigger className="bg-card border-border flex h-10 w-full items-center rounded-md border px-3 text-left text-lg font-normal">
-                            <CalendarIcon className="mr-2 h-4 w-4 text-primary" />
-                            {date ? format(date, "EEEE, dd.MM.yyyy", { locale: sk }) : "Vyber dátum"}
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                            <Calendar
-                                mode="single"
-                                selected={date}
-                                onSelect={setDate}
-                                className="rounded-lg border-border"
-                            />
-                        </PopoverContent>
-                    </Popover>
-                </div>
+                <DatePickerField value={date} onChange={setDate} />
 
                 <div className="flex flex-col gap-2">
                     <Label htmlFor="clients" className="text-muted-foreground text-xs uppercase tracking-wide">
