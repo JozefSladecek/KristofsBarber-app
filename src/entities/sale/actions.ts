@@ -17,11 +17,29 @@ export async function saveSale(data: SaleInput): Promise<ActionResult> {
 
     const { items, ...sale } = validation.data;
 
+    const cartProducts = await db.product.findMany({
+        where: { id: { in: items.map((item) => item.productId) } },
+    });
+
+    if (cartProducts.length !== items.length) {
+        return { success: false, error: "Niektorý produkt už neexistuje, skús to znova" };
+    }
+
     await db.sale.create({
         data: {
             ...sale,
             userId,
-            items: { create: items },
+            items: {
+                create: items.map((item) => {
+                    const product = cartProducts.find((p) => p.id === item.productId)!;
+                    return {
+                        productId: product.id,
+                        productName: product.name,
+                        pricePerUnit: product.price,
+                        quantity: item.quantity,
+                    };
+                }),
+            },
         },
     });
 

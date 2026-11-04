@@ -24,8 +24,6 @@ export function SaveBar() {
                 note: note || null,
                 items: cartItems.map((item) => ({
                     productId: item.product.id,
-                    productName: item.product.name,
-                    pricePerUnit: item.product.price,
                     quantity: item.quantity,
                 })),
             });

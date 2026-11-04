@@ -8,8 +8,6 @@ export const saleSchema = z.object({
         .array(
             z.object({
                 productId: z.string(),
-                productName: z.string(),
-                pricePerUnit: z.number(),
                 quantity: z.number().int().min(1),
             }),
         )
