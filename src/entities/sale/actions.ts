@@ -25,23 +25,38 @@ export async function saveSale(data: SaleInput): Promise<ActionResult> {
         return { success: false, error: "Niektorý produkt už neexistuje, skús to znova" };
     }
 
-    await db.sale.create({
-        data: {
-            ...sale,
-            userId,
-            items: {
-                create: items.map((item) => {
-                    const product = cartProducts.find((p) => p.id === item.productId)!;
-                    return {
-                        productId: product.id,
-                        productName: product.name,
-                        pricePerUnit: product.price,
-                        quantity: item.quantity,
-                    };
-                }),
-            },
-        },
-    });
+    try {
+        await db.$transaction(async (tx) => {
+            // allows negative stock - considered case about human error, e.g. owner forgot to add new stock to the system
+            for (const item of items) {
+                await tx.product.update({
+                    where: { id: item.productId },
+                    data: { stock: { decrement: item.quantity } },
+                });
+            }
+
+            await tx.sale.create({
+                data: {
+                    ...sale,
+                    userId,
+                    items: {
+                        create: items.map((item) => {
+                            const product = cartProducts.find((p) => p.id === item.productId)!;
+                            return {
+                                productId: product.id,
+                                productName: product.name,
+                                pricePerUnit: product.price,
+                                quantity: item.quantity,
+                            };
+                        }),
+                    },
+                },
+            });
+        });
+    } catch (error) {
+        console.error("saveSale failed", error);
+        return { success: false, error: "Nepodarilo sa uložiť nákup, skús to znova" };
+    }
 
     return { success: true };
 }
