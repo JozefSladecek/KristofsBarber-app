@@ -23,12 +23,15 @@ export function setActive(productId: string, active: boolean) {
     });
 }
 
-export function updateProductDetails(
-    productId: string,
-    data: { name: string; category: ProductCategory; price: number; stock: number; lowStockThreshold: number },
-) {
+type ProductDetails = { name: string; category: ProductCategory; price: number; stock: number; lowStockThreshold: number };
+
+export function updateProductDetails(productId: string, data: ProductDetails) {
     return db.product.update({
         where: { id: productId },
         data,
     });
+}
+
+export function insertProduct(data: ProductDetails) {
+    return db.product.create({ data });
 }

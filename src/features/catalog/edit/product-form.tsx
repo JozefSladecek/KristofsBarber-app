@@ -6,19 +6,28 @@ import Link from "next/link";
 import { ChevronLeft, Ban, Undo2 } from "lucide-react";
 import { toast } from "sonner";
 import type { Product } from "@/generated/prisma/client";
-import { CATEGORY_LABELS, CATEGORIES, updateProduct, retireProduct, restoreProduct, productSchema } from "@/entities/product";
+import {
+    CATEGORY_LABELS,
+    CATEGORIES,
+    createProduct,
+    updateProduct,
+    retireProduct,
+    restoreProduct,
+    productSchema,
+} from "@/entities/product";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export function ProductForm({ product }: { product: Product }) {
+export function ProductForm({ product }: { product?: Product }) {
     const router = useRouter();
+    const isEditMode = !!product;
 
-    const [name, setName] = useState(product.name);
-    const [category, setCategory] = useState(product.category);
-    const [price, setPrice] = useState(product.price.toString());
-    const [stock, setStock] = useState(product.stock.toString());
-    const [lowStockThreshold, setLowStockThreshold] = useState(product.lowStockThreshold.toString());
+    const [name, setName] = useState(product?.name ?? "");
+    const [category, setCategory] = useState(product?.category ?? "PRODUCT");
+    const [price, setPrice] = useState(product?.price.toString() ?? "");
+    const [stock, setStock] = useState(product?.stock.toString() ?? "0");
+    const [lowStockThreshold, setLowStockThreshold] = useState(product?.lowStockThreshold.toString() ?? "3");
 
     const [isSaving, setIsSaving] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -47,14 +56,17 @@ export function ProductForm({ product }: { product: Product }) {
 
             setErrors({});
 
-            const result = await updateProduct(product.id, validation.data);
+            const result = isEditMode
+                ? await updateProduct(product.id, validation.data)
+                : await createProduct(validation.data);
+
             if (!result.success) {
                 toast.error(result.error);
                 setIsSaving(false);
                 return;
             }
 
-            toast.success("Zmeny boli uložené");
+            toast.success(isEditMode ? "Zmeny boli uložené" : "Položka bola vytvorená");
             router.push("/catalog");
         } catch (error) {
             toast.error(error instanceof Error ? error.message : "Nepodarilo sa uložiť, skús to znova");
@@ -64,6 +76,8 @@ export function ProductForm({ product }: { product: Product }) {
     }
 
     async function handleToggleActive() {
+        if (!product) return;
+
         setIsSaving(true);
         try {
             const result = product.active
@@ -92,13 +106,14 @@ export function ProductForm({ product }: { product: Product }) {
                     variant="ghost"
                     size="sm"
                     className="text-muted-foreground"
+                    nativeButton={false}
                     render={<Link href="/catalog" />}
                 >
                     <ChevronLeft className="h-4 w-4" />
                     Katalóg
                 </Button>
                 <span className="text-xs font-semibold uppercase tracking-wide text-foreground">
-                    Upraviť položku
+                    {isEditMode ? "Upraviť položku" : "Nová položka"}
                 </span>
             </div>
 
@@ -193,36 +208,38 @@ export function ProductForm({ product }: { product: Product }) {
                     </div>
                 </div>
 
-                <div className="flex flex-col items-center gap-2 border-t border-border pt-6">
-                    <Button
-                        variant="outline"
-                        size="lg"
-                        className={`w-full ${product.active ? "" : "border-primary text-primary"}`}
-                        onClick={handleToggleActive}
-                        disabled={isSaving}
-                    >
-                        {product.active ? (
-                            <>
-                                <Ban className="h-4 w-4" />
-                                Vyradiť z predaja
-                            </>
-                        ) : (
-                            <>
-                                <Undo2 className="h-4 w-4" />
-                                Vrátiť do predaja
-                            </>
-                        )}
-                    </Button>
-                    <p className="text-center text-xs text-muted-foreground">
-                        {product.active
-                            ? "Skryje sa z výberu v Zápise, staré nákupy ostanú. Dá sa vrátiť."
-                            : "Položka sa znova zobrazí v Zápise."}
-                    </p>
-                </div>
+                {isEditMode && (
+                    <div className="flex flex-col items-center gap-2 border-t border-border pt-6">
+                        <Button
+                            variant="outline"
+                            size="lg"
+                            className={`w-full ${product.active ? "" : "border-primary text-primary"}`}
+                            onClick={handleToggleActive}
+                            disabled={isSaving}
+                        >
+                            {product.active ? (
+                                <>
+                                    <Ban className="h-4 w-4" />
+                                    Vyradiť z predaja
+                                </>
+                            ) : (
+                                <>
+                                    <Undo2 className="h-4 w-4" />
+                                    Vrátiť do predaja
+                                </>
+                            )}
+                        </Button>
+                        <p className="text-center text-xs text-muted-foreground">
+                            {product.active
+                                ? "Skryje sa z výberu v Zápise, staré nákupy ostanú. Dá sa vrátiť."
+                                : "Položka sa znova zobrazí v Zápise."}
+                        </p>
+                    </div>
+                )}
             </div>
 
             <Button size="lg" onClick={handleSave} disabled={isSaving} className="w-full text-base font-bold uppercase tracking-wide">
-                Uložiť zmeny
+                {isEditMode ? "Uložiť zmeny" : "Uložiť položku"}
             </Button>
         </div>
     );

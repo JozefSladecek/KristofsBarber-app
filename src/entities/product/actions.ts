@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { setStock, setActive, updateProductDetails } from "./mutations";
+import { setStock, setActive, updateProductDetails, insertProduct } from "./mutations";
 import {
     restockSchema,
     productIdSchema,
@@ -27,6 +27,26 @@ export async function updateProduct(productId: string, data: ProductInput): Prom
         }
         console.error("updateProduct failed", error);
         return { success: false, error: "Nepodarilo sa uložiť zmeny, skús to znova" };
+    }
+
+    revalidatePath("/catalog");
+    return { success: true };
+}
+
+export async function createProduct(data: ProductInput): Promise<ActionResult> {
+    const validation = productSchema.safeParse(data);
+    if (!validation.success) {
+        return { success: false, error: validation.error.issues[0].message };
+    }
+
+    try {
+        await insertProduct(validation.data);
+    } catch (error: any) {
+        if (error.code === "P2002") {
+            return { success: false, error: "Položka s týmto názvom už existuje" };
+        }
+        console.error("createProduct failed", error);
+        return { success: false, error: "Nepodarilo sa vytvoriť položku, skús to znova" };
     }
 
     revalidatePath("/catalog");
