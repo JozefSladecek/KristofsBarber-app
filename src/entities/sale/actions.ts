@@ -2,6 +2,7 @@
 
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
+import { getProductsByIds, decrementStock } from "@/entities/product/server";
 import { saleSchema, type SaleInput } from "./schema";
 
 type ActionResult = { success: true } | { success: false; error: string };
@@ -17,9 +18,7 @@ export async function saveSale(data: SaleInput): Promise<ActionResult> {
 
     const { items, ...sale } = validation.data;
 
-    const cartProducts = await db.product.findMany({
-        where: { id: { in: items.map((item) => item.productId) } },
-    });
+    const cartProducts = await getProductsByIds(items.map((item) => item.productId));
 
     if (cartProducts.length !== items.length) {
         return { success: false, error: "Niektorý produkt už neexistuje, skús to znova" };
@@ -29,10 +28,7 @@ export async function saveSale(data: SaleInput): Promise<ActionResult> {
         await db.$transaction(async (tx) => {
             // allows negative stock - considered case about human error, e.g. owner forgot to add new stock to the system
             for (const item of items) {
-                await tx.product.update({
-                    where: { id: item.productId },
-                    data: { stock: { decrement: item.quantity } },
-                });
+                await decrementStock(tx, item.productId, item.quantity);
             }
 
             await tx.sale.create({
