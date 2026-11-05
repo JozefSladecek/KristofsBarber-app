@@ -20,3 +20,9 @@ export function getProductsByIds(ids: string[]) {
         where: { id: { in: ids } },
     });
 }
+
+export function getProductById(id: string) {
+    return db.product.findUnique({
+        where: { id },
+    });
+}

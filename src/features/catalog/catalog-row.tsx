@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ChevronRight, TriangleAlert } from "lucide-react";
 import type { Product } from "@/generated/prisma/client";
 import { isLowStock } from "@/entities/product";
@@ -6,7 +7,10 @@ export function CatalogRow({ product }: { product: Product }) {
     const isLow = isLowStock(product);
 
     return (
-        <div className="flex min-h-13 w-full items-center gap-3 px-3">
+        <Link
+            href={`/catalog/${product.id}`}
+            className="flex min-h-13 w-full items-center gap-3 px-3 hover:bg-muted"
+        >
             <span className="flex flex-1 flex-col gap-0.5 min-w-0">
                 <span className={product.active ? "" : "text-muted-foreground"}>{product.name}</span>
                 {!product.active ? (
@@ -24,6 +28,6 @@ export function CatalogRow({ product }: { product: Product }) {
                 {product.price.toLocaleString("sk-SK", { minimumFractionDigits: 2 })} €
             </span>
             <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
-        </div>
+        </Link>
     );
 }

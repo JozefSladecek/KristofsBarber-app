@@ -1,2 +1,2 @@
-export { getProducts, getRetiredProducts, getProductsByIds } from "./queries";
+export { getProducts, getRetiredProducts, getProductsByIds, getProductById } from "./queries";
 export { decrementStock, setStock } from "./mutations";
