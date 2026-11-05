@@ -11,7 +11,10 @@ export const saleSchema = z.object({
                 quantity: z.number().int().min(1),
             }),
         )
-        .min(1, "Nákup musí obsahovať aspoň jednu položku"),
+        .min(1, "Nákup musí obsahovať aspoň jednu položku")
+        .refine((items) => new Set(items.map((item) => item.productId)).size === items.length, {
+            message: "Nákup obsahuje duplicitný produkt",
+        }),
 });
 
 export type SaleInput = z.infer<typeof saleSchema>;
