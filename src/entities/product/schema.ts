@@ -6,3 +6,9 @@ export const restockSchema = z.object({
 });
 
 export type RestockInput = z.infer<typeof restockSchema>;
+
+export const productIdSchema = z.object({
+    productId: z.string(),
+});
+
+export type ProductIdInput = z.infer<typeof productIdSchema>;

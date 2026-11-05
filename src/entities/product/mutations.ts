@@ -15,3 +15,10 @@ export function setStock(productId: string, newStock: number) {
         data: { stock: newStock },
     });
 }
+
+export function setActive(productId: string, active: boolean) {
+    return db.product.update({
+        where: { id: productId },
+        data: { active },
+    });
+}
