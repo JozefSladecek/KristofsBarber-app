@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { requireAdminOrOwner } from "@/lib/auth";
 import { setStock, setActive, updateProductDetails, insertProduct } from "./mutations";
 import {
     restockSchema,
@@ -14,6 +15,9 @@ import {
 type ActionResult = { success: true } | { success: false; error: string };
 
 export async function updateProduct(productId: string, data: ProductInput): Promise<ActionResult> {
+    const { error: authError } = await requireAdminOrOwner();
+    if (authError) return authError;
+
     const validation = productSchema.safeParse(data);
     if (!validation.success) {
         return { success: false, error: validation.error.issues[0].message };
@@ -34,6 +38,9 @@ export async function updateProduct(productId: string, data: ProductInput): Prom
 }
 
 export async function createProduct(data: ProductInput): Promise<ActionResult> {
+    const { error: authError } = await requireAdminOrOwner();
+    if (authError) return authError;
+
     const validation = productSchema.safeParse(data);
     if (!validation.success) {
         return { success: false, error: validation.error.issues[0].message };
@@ -54,6 +61,9 @@ export async function createProduct(data: ProductInput): Promise<ActionResult> {
 }
 
 export async function restockProduct(data: RestockInput): Promise<ActionResult> {
+    const { error: authError } = await requireAdminOrOwner();
+    if (authError) return authError;
+
     const validation = restockSchema.safeParse(data);
     if (!validation.success) {
         return { success: false, error: validation.error.issues[0].message };
@@ -71,6 +81,9 @@ export async function restockProduct(data: RestockInput): Promise<ActionResult> 
 }
 
 export async function retireProduct(data: ProductIdInput): Promise<ActionResult> {
+    const { error: authError } = await requireAdminOrOwner();
+    if (authError) return authError;
+
     const validation = productIdSchema.safeParse(data);
     if (!validation.success) {
         return { success: false, error: validation.error.issues[0].message };
@@ -88,6 +101,9 @@ export async function retireProduct(data: ProductIdInput): Promise<ActionResult>
 }
 
 export async function restoreProduct(data: ProductIdInput): Promise<ActionResult> {
+    const { error: authError } = await requireAdminOrOwner();
+    if (authError) return authError;
+
     const validation = productIdSchema.safeParse(data);
     if (!validation.success) {
         return { success: false, error: validation.error.issues[0].message };

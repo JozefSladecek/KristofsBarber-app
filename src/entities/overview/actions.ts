@@ -1,18 +1,14 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { auth } from "@/lib/auth";
+import { requireAdminOrOwner } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
-function assertIsOwnerOrAdmin(role: string) {
-    if (role !== "ADMIN" && role !== "OWNER") {
-        throw new Error("Nemáš oprávnenie na túto akciu");
-    }
-}
+type ActionResult = { success: true } | { success: false; error: string };
 
-export async function markPayoutPaid(userId: string, month: Date, outstanding: number) {
-    const session = await auth();
-    assertIsOwnerOrAdmin(session!.user!.role);
+export async function markPayoutPaid(userId: string, month: Date, outstanding: number): Promise<ActionResult> {
+    const { error: authError } = await requireAdminOrOwner();
+    if (authError) return authError;
 
     await db.envelopePayout.upsert({
         where: { userId_month: { userId, month } },
@@ -20,12 +16,14 @@ export async function markPayoutPaid(userId: string, month: Date, outstanding: n
         update: { amount: { increment: outstanding } }, // increment the amount to return if the record already exists
     });
     revalidatePath("/overview");
+    return { success: true };
 }
 
-export async function unmarkPayout(id: string) {
-    const session = await auth();
-    assertIsOwnerOrAdmin(session!.user!.role);
+export async function unmarkPayout(id: string): Promise<ActionResult> {
+    const { error: authError } = await requireAdminOrOwner();
+    if (authError) return authError;
 
     await db.envelopePayout.delete({ where: { id } });
     revalidatePath("/overview");
+    return { success: true };
 }

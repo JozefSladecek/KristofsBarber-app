@@ -1,7 +1,8 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { auth } from "@/lib/auth";
+import { requireSession } from "@/lib/auth";
+import { isAdminOrOwner } from "@/lib/auth.config";
 import { revalidatePath } from "next/cache";
 import { entrySchema } from "./schema";
 
@@ -31,8 +32,9 @@ export async function saveEntry(data: SaveEntryInput): Promise<ActionResult> {
         return { success: false, error: validation.error.issues[0].message };
     }
 
-    const session = await auth();
-    const userId = session!.user!.id;
+    const { user, error } = await requireSession();
+    if (error) return error;
+    const userId = user.id;
 
     try {
         await db.entry.create({ data: { ...data, userId } });
@@ -53,9 +55,10 @@ export async function updateEntry(id: string, data: UpdateEntryInput): Promise<A
         return { success: false, error: validation.error.issues[0].message };
     }
 
-    const session = await auth();
-    const userId = session!.user!.id;
-    const isAdmin = session!.user!.role === "ADMIN" || session!.user!.role === "OWNER";
+    const { user, error } = await requireSession();
+    if (error) return error;
+    const userId = user.id;
+    const isAdmin = isAdminOrOwner(user.role);
 
     try {
         await db.entry.updateMany({
@@ -74,9 +77,10 @@ export async function updateEntry(id: string, data: UpdateEntryInput): Promise<A
 }
 
 export async function deleteEntry(id: string) {
-    const session = await auth();
-    const userId = session!.user!.id;
-    const isAdmin = session!.user!.role === "ADMIN" || session!.user!.role === "OWNER";
+    const { user, error } = await requireSession();
+    if (error) throw new Error(error.error);
+    const userId = user.id;
+    const isAdmin = isAdminOrOwner(user.role);
 
     await db.entry.deleteMany({
         where: isAdmin ? { id } : { id, userId },
