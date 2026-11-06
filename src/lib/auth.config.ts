@@ -1,3 +1,7 @@
+export function isAdminOrOwner(role: string | undefined | null) {
+    return role === "ADMIN" || role === "OWNER";
+}
+
 export const authConfig = {
     pages: {
         signIn: "/login",
@@ -11,11 +15,13 @@ export const authConfig = {
             const isLoggedIn = !!auth?.user;
             const isLoginPage = nextUrl.pathname === "/login";
             const isOverviewPage = nextUrl.pathname.startsWith("/overview");
-            const isAdmin = auth?.user?.role === "ADMIN" || auth?.user?.role === "OWNER";
+            const isCatalogPage = nextUrl.pathname.startsWith("/catalog");
+            // todo overview page for prodcuts is laso forbidden for non-admin/owner
+            const isAdmin = isAdminOrOwner(auth?.user?.role);
 
             if (!isLoggedIn && !isLoginPage) return false;
             if (isLoggedIn && isLoginPage) return Response.redirect(new URL("/", nextUrl));
-            if (isOverviewPage && !isAdmin) {
+            if ((isOverviewPage || isCatalogPage) && !isAdmin) {
                 return new Response("Forbidden", { status: 403 });
             }
             return true;

@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
-import { authConfig } from "@/lib/auth.config";
+import { authConfig, isAdminOrOwner } from "@/lib/auth.config";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
     ...authConfig,
@@ -27,3 +27,25 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }),
     ],
 });
+
+type AuthError = { success: false; error: string };
+type SessionUser = { id: string; role: string };
+type SessionResult = { user: SessionUser; error: null } | { user: null; error: AuthError };
+
+export async function requireSession(): Promise<SessionResult> {
+    const session = await auth();
+    if (!session?.user?.id) {
+        return { user: null, error: { success: false, error: "Musíš byť prihlásený" } };
+    }
+    return { user: session.user, error: null };
+}
+
+export async function requireAdminOrOwner(): Promise<SessionResult> {
+    const result = await requireSession();
+    if (result.error) return result;
+
+    if (!isAdminOrOwner(result.user.role)) {
+        return { user: null, error: { success: false, error: "Nemáš oprávnenie na túto akciu" } };
+    }
+    return result;
+}

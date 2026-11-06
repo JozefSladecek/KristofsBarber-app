@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { auth } from "@/lib/auth";
+import { requireSession } from "@/lib/auth";
 import { getProductsByIds, decrementStock } from "@/entities/product/server";
 import { saleSchema, type SaleInput } from "./schema";
 
@@ -13,8 +13,9 @@ export async function saveSale(data: SaleInput): Promise<ActionResult> {
         return { success: false, error: validation.error.issues[0].message };
     }
 
-    const session = await auth();
-    const userId = session!.user!.id;
+    const { user, error } = await requireSession();
+    if (error) return error;
+    const userId = user.id;
 
     const { items, ...sale } = validation.data;
 

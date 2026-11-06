@@ -25,13 +25,16 @@ export function PayoutButton({
     async function handleToggle() {
         setIsSaving(true);
         try {
-            if (isSettled) {
-                await unmarkPayout(payout!.id);
-                toast.success("Vyplatenie zrušené");
-            } else {
-                await markPayoutPaid(userId, month, toReturn);
-                toast.success("Označené ako vyplatené");
+            const result = isSettled
+                ? await unmarkPayout(payout!.id)
+                : await markPayoutPaid(userId, month, toReturn);
+
+            if (!result.success) {
+                toast.error(result.error);
+                return;
             }
+
+            toast.success(isSettled ? "Vyplatenie zrušené" : "Označené ako vyplatené");
         } catch (error) {
             toast.error(error instanceof Error ? error.message : "Nepodarilo sa uložiť, skús to znova");
         } finally {
