@@ -1,4 +1,4 @@
-import { getProducts } from "@/entities/sale/server";
+import { getProducts } from "@/entities/product/server";
 import { DateField } from "./date-field";
 import { Catalog } from "./catalog";
 import { Cart } from "./cart";
