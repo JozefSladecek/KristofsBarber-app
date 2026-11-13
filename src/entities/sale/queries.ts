@@ -15,7 +15,7 @@ export function getSales(userId: string, month?: Date) {
                 lt: startOfNextMonth,
             },
         },
-        include: { items: true },
+        include: { items: { include: { product: { select: { category: true } } } } },
         orderBy: { date: "desc" },
     });
 }

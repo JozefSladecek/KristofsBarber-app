@@ -73,3 +73,10 @@ export function getAllEmployees() {
         orderBy: { name: "asc" },
     });
 }
+
+export function getEmployeeById(userId: string) {
+    return db.user.findFirst({
+        where: { id: userId, role: { in: ["EMPLOYEE", "OWNER"] } },
+        select: { id: true, name: true, role: true },
+    });
+}

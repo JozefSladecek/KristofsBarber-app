@@ -1,1 +1,1 @@
-export { getOverviewData, getEmployeeEntries, getAllEmployees, getPayoutAmount } from "./queries";
+export { getOverviewData, getEmployeeEntries, getAllEmployees, getEmployeeById, getPayoutAmount } from "./queries";

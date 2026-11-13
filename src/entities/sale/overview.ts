@@ -2,6 +2,7 @@ import type { getAllSales } from "./queries";
 import { saleTotal, summarizeSales } from "./history";
 
 type Sale = Awaited<ReturnType<typeof getAllSales>>[number];
+type SaleWithCategorizedItems = { items: { product: { category: string }; pricePerUnit: number; quantity: number }[] };
 
 // employees earn a cut of product sales only; drinks don't carry commission, and the owner takes none
 const COMMISSION_RATE = 0.15;
@@ -17,36 +18,44 @@ export function summarizeOverview(sales: Sale[]) {
     return { totalSummary: { ...totalSummary, quantity } };
 }
 
+// 15% of revenue from PRODUCT-category items; drinks don't count, owners earn no commission
+export function calculateCommission(sales: SaleWithCategorizedItems[]) {
+    const productRevenue = sales.reduce(
+        (sum, sale) =>
+            sum +
+            sale.items
+                .filter((item) => item.product.category === "PRODUCT")
+                .reduce((itemSum, item) => itemSum + item.pricePerUnit * item.quantity, 0),
+        0,
+    );
+    return productRevenue * COMMISSION_RATE;
+}
+
 export function summarizeByEmployee(sales: Sale[]) {
-    const byUserId = new Map<
-        string,
-        { name: string; isOwner: boolean; count: number; quantity: number; total: number; productRevenue: number }
-    >();
+    const byUserId = new Map<string, { name: string; isOwner: boolean; sales: Sale[] }>();
 
     for (const sale of sales) {
         const current = byUserId.get(sale.user.id) ?? {
             name: sale.user.name,
             isOwner: sale.user.role === "OWNER",
-            count: 0,
-            quantity: 0,
-            total: 0,
-            productRevenue: 0,
+            sales: [],
         };
-        current.count += 1;
-        current.quantity += sale.items.reduce((sum, item) => sum + item.quantity, 0);
-        current.total += saleTotal(sale);
-        current.productRevenue += sale.items
-            .filter((item) => item.product.category === "PRODUCT")
-            .reduce((sum, item) => sum + item.pricePerUnit * item.quantity, 0);
+        current.sales.push(sale);
         byUserId.set(sale.user.id, current);
     }
 
     return Array.from(byUserId.entries())
-        .map(([userId, { productRevenue, isOwner, ...data }]) => ({
+        .map(([userId, { name, isOwner, sales: employeeSales }]) => ({
             userId,
-            ...data,
+            name,
             isOwner,
-            commission: isOwner ? null : productRevenue * COMMISSION_RATE,
+            count: employeeSales.length,
+            quantity: employeeSales.reduce(
+                (sum, sale) => sum + sale.items.reduce((itemSum, item) => itemSum + item.quantity, 0),
+                0,
+            ),
+            total: employeeSales.reduce((sum, sale) => sum + saleTotal(sale), 0),
+            commission: isOwner ? null : calculateCommission(employeeSales),
         }))
         .sort((a, b) => b.total - a.total);
 }

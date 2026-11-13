@@ -4,7 +4,7 @@ function formatEur(value: number) {
     return `${value.toLocaleString("sk-SK", { minimumFractionDigits: 2 })} €`;
 }
 
-export function SalesMonthSummary({ summary }: { summary: Summary }) {
+export function SalesMonthSummary({ summary, commission }: { summary: Summary; commission?: number }) {
     return (
         <div className="flex shrink-0 flex-col gap-2 rounded-lg border border-border bg-card p-4">
             <span className="text-xs font-semibold uppercase tracking-wide text-primary">
@@ -26,6 +26,13 @@ export function SalesMonthSummary({ summary }: { summary: Summary }) {
                 <span className="text-lg font-bold text-primary">Spolu</span>
                 <span className="text-xl font-bold text-primary">{formatEur(summary.total)}</span>
             </div>
+
+            {commission !== undefined && (
+                <div className="flex items-center justify-between text-[13px] tabular-nums">
+                    <span className="text-muted-foreground">Provízia · 15 % z produktov</span>
+                    <span className="font-semibold text-foreground">{formatEur(commission)}</span>
+                </div>
+            )}
         </div>
     );
 }
