@@ -24,11 +24,24 @@ type SaleContextValue = {
 
 const SaleContext = createContext<SaleContextValue | null>(null);
 
-export function SaleProvider({ children }: { children: ReactNode }) {
-    const [date, setDate] = useState<Date | undefined>(new Date());
-    const [cartItems, setCartItems] = useState<CartItem[]>([]);
-    const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("CASH");
-    const [note, setNote] = useState("");
+type InitialSaleData = {
+    date: Date;
+    cartItems: CartItem[];
+    paymentMethod: PaymentMethod;
+    note: string;
+};
+
+export function SaleProvider({
+    children,
+    initial,
+}: {
+    children: ReactNode;
+    initial?: InitialSaleData;
+}) {
+    const [date, setDate] = useState<Date | undefined>(initial?.date ?? new Date());
+    const [cartItems, setCartItems] = useState<CartItem[]>(initial?.cartItems ?? []);
+    const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(initial?.paymentMethod ?? "CASH");
+    const [note, setNote] = useState(initial?.note ?? "");
 
     function addItem(product: Product) {
         setCartItems((items) => {
