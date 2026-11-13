@@ -1,1 +1,1 @@
-export { getSales, getSaleById, getSaleFormData } from "./queries";
+export { getSales, getAllSales, getSaleById, getSaleFormData } from "./queries";

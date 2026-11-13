@@ -20,6 +20,21 @@ export function getSales(userId: string, month?: Date) {
     });
 }
 
+export function getAllSales(month?: Date) {
+    const { startOfMonth, startOfNextMonth } = getMonthRange(month);
+
+    return db.sale.findMany({
+        where: {
+            date: { gte: startOfMonth, lt: startOfNextMonth },
+            user: { role: { in: ["EMPLOYEE", "OWNER"] } },
+        },
+        include: {
+            items: { include: { product: { select: { category: true } } } },
+            user: { select: { id: true, name: true, role: true } },
+        },
+    });
+}
+
 export function getSaleById(id: string, userId: string, isAdmin: boolean) {
     return db.sale.findFirst({
         where: isAdmin ? { id } : { id, userId },
