@@ -1,12 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { saveSale } from "@/entities/sale";
+import { saveSale, updateSale } from "@/entities/sale";
 import { useSale } from "./sale-context";
 
-export function SaveBar() {
+export function SaveBar({ saleId }: { saleId?: string }) {
+    const router = useRouter();
+    const isEditMode = !!saleId;
     const { date, cartItems, paymentMethod, note, clear } = useSale();
     const [isSaving, setIsSaving] = useState(false);
 
@@ -18,7 +21,7 @@ export function SaveBar() {
 
         setIsSaving(true);
         try {
-            const result = await saveSale({
+            const data = {
                 date,
                 paymentMethod,
                 note: note || null,
@@ -26,15 +29,22 @@ export function SaveBar() {
                     productId: item.product.id,
                     quantity: item.quantity,
                 })),
-            });
+            };
+
+            const result = isEditMode ? await updateSale(saleId, data) : await saveSale(data);
 
             if (!result.success) {
                 toast.error(result.error);
                 return;
             }
 
-            toast.success("Nákup bol uložený");
-            clear();
+            if (isEditMode) {
+                toast.success("Nákup bol upravený");
+                router.push("/sales/history");
+            } else {
+                toast.success("Nákup bol uložený");
+                clear();
+            }
         } catch (error) {
             toast.error(error instanceof Error ? error.message : "Nepodarilo sa uložiť, skús to znova");
         } finally {
@@ -55,7 +65,7 @@ export function SaveBar() {
                 disabled={isSaving || cartItems.length === 0}
                 className="h-11 w-full text-base font-bold uppercase tracking-wide"
             >
-                Uložiť nákup
+                {isEditMode ? "Uložiť zmeny" : "Uložiť nákup"}
             </Button>
         </div>
     );

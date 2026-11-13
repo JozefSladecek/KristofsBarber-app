@@ -2,10 +2,11 @@ import "server-only";
 import type { Prisma, ProductCategory } from "@/generated/prisma/client";
 import { db } from "@/lib/db";
 
-export function decrementStock(tx: Prisma.TransactionClient, productId: string, quantity: number) {
+// delta > 0 lowers stock (sale), delta < 0 restores it (e.g. removed/reduced item on edit)
+export function adjustStock(tx: Prisma.TransactionClient, productId: string, delta: number) {
     return tx.product.update({
         where: { id: productId },
-        data: { stock: { decrement: quantity } },
+        data: { stock: { decrement: delta } },
     });
 }
 
